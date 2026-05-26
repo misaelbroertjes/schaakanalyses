@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang='nl'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Schaakanalyse - Onbekend</title>
+  <link rel='stylesheet' href='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'>
+  <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js'></script>
+  <script src='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 40px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #242424; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+    h1 { color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 12px; font-size: 2.2em; margin-bottom: 5px; }
+    h2 { color: #2196f3; margin-top: 40px; border-bottom: 1px solid #3d3d3d; padding-bottom: 8px; }
+    .meta-info { color: #aaa; font-style: italic; margin-bottom: 30px; }
+    .trend-box { background: #2c3e50; border-left: 4px solid #3498db; padding: 20px; border-radius: 4px; margin: 20px 0; }
+    .moment-card { background: #2e2e2e; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .moment-header { font-weight: bold; color: #e74c3c; font-size: 1.1em; margin-bottom: 10px; }
+    .eval-tag { display: inline-block; background: #3d3d3d; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; margin: 5px 0 15px 0; font-family: monospace; }
+    
+    /* Layout voor Evaluatiebalk + Bord */
+    .board-wrapper { display: flex; justify-content: center; align-items: stretch; margin: 20px 0; gap: 15px; width: 100%; }
+    .board-container { display: flex; justify-content: center; width: 340px; }
+    .board { width: 340px; }
+    
+    /* Evaluatiebalk Stijlen */
+    .eval-bar-container { width: 20px; background-color: #111; border: 2px solid #555; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; transition: opacity 0.3s ease, background-color 0.3s ease; }
+    .eval-bar-fill { width: 100%; height: 50%; background-color: #fff; transition: height 0.4s ease, background-color 0.3s ease; }
+    
+    /* Inactieve / Grijze status voor de balk */
+    .eval-bar-container.inactive { opacity: 0.25; background-color: #444; border-color: #666; }
+    .eval-bar-fill.inactive { background-color: #888; }
+
+    /* Knoppen Stijlen */
+    .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+    .nav-btn { background-color: #3d3d3d; color: #fff; border: 1px solid #555; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: background 0.2s; }
+    .nav-btn:hover { background-color: #555; }
+    .reset-btn { background-color: #2c3e50; border-color: #3498db; }
+    .reset-btn:hover { background-color: #34495e; }
+    
+    .homework { background: #1e382b; border: 1px solid #27ae60; padding: 20px; border-radius: 6px; margin-top: 40px; }
+    strong { color: #fff; }
+    a { color: #2196f3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <h1>Uitgebreide Schaakanalyse</h1>
+    <div class='meta-info'>Opening: Onbekend | Partij gespeeld op: 02 mei 2026 | <a href='https://lichess.org/9dr5iyFQ' target='_blank'>Interactief Lichess Bord</a></div>
+    <h2>1. Strategische Terugblik & Trends</h2>
+    <div class='trend-box'>ThaMies, we blijven terugkomen naar hetzelfde punt: je bent een fantastische aanvaller, maar die aanvallende geest is ook jouw grootste zwakte. De historische analyse wijst consistent op tunnelvisie en het onjuist inschatten van materiële veiligheid; blunders zoals 21. Qd3?? of e5 waren directe gevolgen van focussen op de eigen actie in plaats van het analyseren van de tegenstander's dreiging. In deze partij zien we dat je een solide, correcte opening speelde en functioneel evenwicht behield tot aan move 5. Dit is vooruitgang! Je bent niet meer blind voor basisstructuren. Maar wanneer de partij echter in het middenspel terechtkomt en complexiteit toeneemt, laten we zien dat je nog steeds geneigd bent te snel een stap te zetten die onbedoelde openingen creëert of stukken op onveilig terrein plaatst. We moeten niet alleen leren 'waarde verliezen' (zoals met e4), maar ook leren om 'onzekerheid te introduceren'. De overgang van defensief naar offensief moet altijd via de lens van materiële en structurele integriteit lopen. Denk aan het concept dat we eerder bespraken: eerst checken of je koning en pionnen op een onkwetsbare plek staan, *voordat* je denkt aan de dameaanval. We moeten die fundering 100% betrouwbaar maken.<br></div>
+    <h2>2. Diepgaande Analyse van de Kritieke Momenten</h2>
+    
+    <h2>3. Gepersonaliseerd Huiswerk & Focus</h2>
+    <div class='homework'>Vanaf nu pas ik de 'Integriteitscheck' in drie fases toe: Fase 1 (Deelname): Identificeer alle onverdedigde velden binnen een straal van 3 vakjes rond je koning. Fase 2 (Verdediging): Controleer of elke pion die je verplaatst, niet leidt tot het creëren van een nieuwe zwakte op de eerste of tweede lijn. Fase 3 (Aanval/Blundercheck): Voordat je een offensieve zet doet, moet je ten minste één keer in gedachten doorrekenen hoe jouw tegenstander met zijn krachtigste stuk zou kunnen reageren om jou te verdedigen en zo het initiatief terugnemen. Dit dwingt je tot dieper nadenken over de globale stelling.</div>
+  </div>
+  <script>
+    $(document).ready(function(){
+      var pColor = 'black'.toLowerCase() === 'black' ? 'black' : 'white';
+      var rawPgn = "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2026.05.02\"]\n[Round \"-\"]\n[White \"Husniwa\"]\n[Black \"ThaMies\"]\n[Result \"0-1\"]\n[CurrentPosition \"r1bqkb1r/pp2pppp/2n2n2/3p4/P7/1B6/1PPP1PPP/RNBQK1NR w KQkq - 1 6\"]\n[Timezone \"UTC\"]\n[ECO \"B10\"]\n[ECOUrl \"https://www.chess.com/openings/Caro-Kann-Defense\"]\n[UTCDate \"2026.05.02\"]\n[UTCTime \"15:21:07\"]\n[WhiteElo \"1104\"]\n[BlackElo \"1138\"]\n[TimeControl \"600\"]\n[Termination \"ThaMies won by resignation\"]\n[StartTime \"15:21:07\"]\n[EndDate \"2026.05.02\"]\n[EndTime \"15:22:08\"]\n[Link \"https://www.chess.com/game/live/168136754986\"]\n\n1. e4 {[%clk 0:09:58.6]} 1... c6 {[%clk 0:09:58.9]} 2. Bc4 {[%clk 0:09:57.8]} 2... d5 {[%clk 0:09:58.2]} 3. exd5 {[%clk 0:09:57.2]} 3... cxd5 {[%clk 0:09:58.1]} 4. Bb3 {[%clk 0:09:56.9]} 4... Nc6 {[%clk 0:09:57.5]} 5. a4 {[%clk 0:09:55.6]} 5... Nf6 {[%clk 0:09:42.1]} 0-1\n";
+      
+      var cleanPgn = rawPgn.replace(/\{[^\}]*\}/g, '');
+      var mainChess = new Chess();
+      mainChess.load_pgn(cleanPgn);
+      var fullHistory = mainChess.history({ verbose: true });
+
+      var activeBoards = {};
+
+      // Universele evaluatiefunctie met actieve/inactieve afhandeling
+      function updateEvalBar(ply, scoreText, forceInactive) {
+        var container = $('#eval_container_' + ply);
+        var fill = $('#eval_bar_' + ply);
+
+        if (forceInactive) {
+          container.addClass('inactive');
+          fill.addClass('inactive');
+          return;
+        }
+
+        container.removeClass('inactive');
+        fill.removeClass('inactive');
+
+        var score = parseFloat(scoreText);
+        if (isNaN(score)) {
+          score = scoreText.includes('-') ? -10 : 10;
+        }
+        
+        var percentage = 50 + (score * 10);
+        percentage = Math.max(5, Math.min(95, percentage));
+        
+        if (pColor === 'black') {
+          percentage = 100 - percentage;
+        }
+        fill.css('height', percentage + '%');
+      }
+
+      $('.board').each(function(){
+        var boardId = $(this).attr('id');
+        var ply = parseInt($(this).data('ply'), 10);
+        var moveUci = $(this).data('move');
+        var scoreBefore = $(this).data('scorebefore').toString();
+        var scoreAfter = $(this).data('scoreafter').toString();
+        
+        var targetChess = new Chess();
+        var blunderPlyIndex = ply - 1;
+        
+        for (var i = 0; i < blunderPlyIndex; i++) {
+          if (fullHistory[i]) { targetChess.move(fullHistory[i]); }
+        }
+        
+        var board = Chessboard(boardId, {
+          position: targetChess.fen(),
+          orientation: pColor,
+          showNotation: true,
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        
+        activeBoards[ply] = {
+          boardInstance: board,
+          initialHistoryIndex: blunderPlyIndex,
+          currentHistoryIndex: blunderPlyIndex,
+          moveUci: moveUci,
+          scoreBefore: scoreBefore,
+          scoreAfter: scoreAfter
+        };
+
+        // Start met de score VÓÓR de blunder
+        updateEvalBar(ply, scoreBefore, false);
+        
+        if (moveUci && moveUci.length === 4) {
+          highlightSquares(boardId, moveUci);
+        }
+      });
+
+      function highlightSquares(boardId, uci) {
+        $('#' + boardId + ' .square-55d63').css('background-color', '');
+        var fromStr = uci.substring(0,2);
+        var toStr = uci.substring(2,4);
+        $('#' + boardId + ' .square-' + fromStr).css('background-color', 'rgba(231,76,60,0.55)');
+        $('#' + boardId + ' .square-' + toStr).css('background-color', 'rgba(231,76,60,0.55)');
+      }
+
+      function evaluateStepBar(ply) {
+        var state = activeBoards[ply];
+        
+        if (state.currentHistoryIndex === state.initialHistoryIndex) {
+          // Exact op het kritieke moment -> Toon score VÓÓR blunder
+          updateEvalBar(ply, state.scoreBefore, false);
+        } else if (state.currentHistoryIndex === state.initialHistoryIndex + 1) {
+          // Exact één zet verder (de blunder is gedaan) -> Toon score NA blunder
+          updateEvalBar(ply, state.scoreAfter, false);
+        } else {
+          // Handmatig ergens anders in de partij -> Zet op inactief/grijs
+          updateEvalBar(ply, null, true);
+        }
+      }
+
+      $('.prev-btn').click(function() {
+        var ply = $(this).data('board');
+        var state = activeBoards[ply];
+        if (state.currentHistoryIndex > 0) {
+          state.currentHistoryIndex--;
+          rebuildBoardState(ply);
+          evaluateStepBar(ply);
+        }
+      });
+
+      $('.next-btn').click(function() {
+        var ply = $(this).data('board');
+        var state = activeBoards[ply];
+        if (state.currentHistoryIndex < fullHistory.length) {
+          state.currentHistoryIndex++;
+          rebuildBoardState(ply);
+          evaluateStepBar(ply);
+        }
+      });
+
+      $('.reset-btn').click(function() {
+        var ply = $(this).data('board');
+        var state = activeBoards[ply];
+        state.currentHistoryIndex = state.initialHistoryIndex;
+        rebuildBoardState(ply);
+        updateEvalBar(ply, state.scoreBefore, false);
+        highlightSquares('board_' + ply, state.moveUci);
+      });
+
+      function rebuildBoardState(ply) {
+        var state = activeBoards[ply];
+        var tempChess = new Chess();
+        for (var i = 0; i < state.currentHistoryIndex; i++) {
+          tempChess.move(fullHistory[i]);
+        }
+        state.boardInstance.position(tempChess.fen());
+        $('#board_' + ply + ' .square-55d63').css('background-color', ''); 
+      }
+    });
+  </script>
+</body>
+</html>
