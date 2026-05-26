@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang='nl'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Schaakanalyse - Onbekend</title>
+  <link rel='stylesheet' href='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'>
+  <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js'></script>
+  <script src='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 40px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #242424; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+    h1 { color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 12px; font-size: 2.2em; margin-bottom: 5px; }
+    h2 { color: #2196f3; margin-top: 40px; border-bottom: 1px solid #3d3d3d; padding-bottom: 8px; }
+    .meta-info { color: #aaa; font-style: italic; margin-bottom: 30px; }
+    .trend-box { background: #2c3e50; border-left: 4px solid #3498db; padding: 20px; border-radius: 4px; margin: 20px 0; }
+    .moment-card { background: #2e2e2e; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .moment-header { font-weight: bold; color: #e74c3c; font-size: 1.1em; margin-bottom: 10px; }
+    .eval-tag { display: inline-block; background: #3d3d3d; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; margin: 5px 0 15px 0; font-family: monospace; }
+    
+    /* Layout voor Evaluatiebalk + Bord */
+    .board-wrapper { display: flex; justify-content: center; align-items: stretch; margin: 20px 0; gap: 15px; width: 100%; }
+    .board-container { display: flex; justify-content: center; width: 340px; }
+    .board { width: 340px; }
+    
+    /* Evaluatiebalk Stijlen */
+    .eval-bar-container { width: 20px; background-color: #111; border: 2px solid #555; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; transition: opacity 0.3s ease, background-color 0.3s ease; }
+    .eval-bar-fill { width: 100%; height: 50%; background-color: #fff; transition: height 0.4s ease, background-color 0.3s ease; }
+    
+    /* Inactieve / Grijze status voor de balk */
+    .eval-bar-container.inactive { opacity: 0.25; background-color: #444; border-color: #666; }
+    .eval-bar-fill.inactive { background-color: #888; }
+
+    /* Knoppen Stijlen */
+    .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+    .nav-btn { background-color: #3d3d3d; color: #fff; border: 1px solid #555; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: background 0.2s; }
+    .nav-btn:hover { background-color: #555; }
+    .reset-btn { background-color: #2c3e50; border-color: #3498db; }
+    .reset-btn:hover { background-color: #34495e; }
+    
+    .homework { background: #1e382b; border: 1px solid #27ae60; padding: 20px; border-radius: 6px; margin-top: 40px; }
+    strong { color: #fff; }
+    a { color: #2196f3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <h1>Uitgebreide Schaakanalyse</h1>
+    <div class='meta-info'>Opening: Onbekend | Partij gespeeld op: 02 mei 2026 | <a href='https://lichess.org/ElqYpi5Z' target='_blank'>Interactief Lichess Bord</a></div>
+    <h2>1. Strategische Terugblik & Trends</h2>
+    <div class='trend-box'>Welkom terug, ThaMies. Je blijft een speler met enorm veel vechtlust en je bent nog steeds in staat om complexe langetermijnplannen uit te voeren; dat is echt een sterk punt. Echter, we zien de echo van onze eerdere sessies. De grootste valkuil die wij blijvend moeten oplossen, is het vasthouden aan 'tunnelvisie' ten koste van de algemene stelling. Je neigt ertoe om je focus te leggen op één specifiek tactisch doel (bijvoorbeeld een pion of een stuk aanvallen), terwijl je daarbij fundamenteel de veiligheid van je eigen stukken en je centrale structuur verwaarloost.<br><br>We hebben in eerdere partijen gesproken over het *onveilig* maken van het centrum door te haastige openingen (zoals 12. e4) en later blunders die voortkwamen uit het negeren van de tegenstander op de achtergrond. Vandaag, bij de zet 25. c3, zien we datzelfde patroon terug: een poging om iets te bereiken in je pionnenstructuur zonder eerst te garanderen dat deze structuur zelf veilig is en optimaal ondersteund wordt.<br><br>Je blunder op zet 11. Bxe4 en vooral die op zet 25. c3 waren geen pure aanvalsblunders; het waren 'blunders van verwaarlozing'. Je had een strategische taak (verbetering of controle), maar de uitvoering was te gehaast, waardoor je onnodig materiaal verloor of je stelling zwak maakte. We moeten deze overgang maken: van ‘Ik moet nu aanvallen’ naar ‘Wat is mijn meest robuuste en veilige stelling, ongeacht de aanval?’. Het concept van de 'Blundercheck' en de 'Twee-Seconden-Check' zijn cruciaal, omdat ze je dwingen om altijd eerst te vragen: Wat valt mij nu aan? En wat kan ik verliezen?<br><br>We moeten deze valkuil definitief afsluiten. Je talent ligt in het initiatief nemen, maar dat initiatief moet geworteld zijn in een onwrikbaar fundament van veiligheid en positionele volledigheid.</div>
+    <h2>2. Diepgaande Analyse van de Kritieke Momenten</h2>
+    
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 25 (c3) - Blunder</div>
+    <div class='eval-tag'>Score voor: 5.66 | Score na: 4.07</div>
+    <p>Dit was de meest kritieke blunder van vandaag. De zet 25... f4, gevolgd door 26. exf4+ Kh5 en 27. c4 dxc4 (het beste voor zwart), heeft je pionnenstructuur op de queenside onnodig gecompliceerd en te kwetsbaar gemaakt. Jouw zet 29. cxb5 was een poging tot initiatief, maar het creëerde ook gapingheden in de b-lijn die zwart kon exploiteren. De engine wijst uit dat c3 (of eigenlijk het falen om te reageren op de zwakke stelling) leidde tot materiële verlies. Wat je had moeten doen: nadat je pionnenstructuur al zo veel veranderingen heeft gezien, was een meer passieve, defensieve en versterkende zet beter geweest – zoals het consolideren van de koningsvleugel of het veiligstellen van de d-lijn — in plaats van met c3 verder te roeren aan een reeds onstabiele pionbasis. We moeten weten wanneer 'niets doen' eigenlijk de meest actieve, strategisch verantwoorde zet is.</p>
+    
+    <div class='board-wrapper'>
+      <div id='eval_container_49' class='eval-bar-container'>
+        <div id='eval_bar_49' class='eval-bar-fill'></div>
+      </div>
+      <div class='board-container'>
+        <div id='board_49' class='board' data-ply='49' data-move='c2c3' data-scorebefore='5.66' data-scoreafter='4.07'></div>
+      </div>
+    </div>
+
+    <div class='btn-container'>
+      <button class='nav-btn prev-btn' data-board='49'>◀ Vorige</button>
+      <button class='nav-btn reset-btn' data-board='49'>Kritiek Moment</button>
+      <button class='nav-btn next-btn' data-board='49'>Volgende ▶</button>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 6 (Bxe4) - Mistake</div>
+    <div class='eval-tag'>Score voor: 0.71 | Score na: -0.11</div>
+    <p>Het vroege wisselen met Bxe4 was een classic 'Mistake'. Je wist dat je paard op e4 stond en dat het een centraal veld is. Hoewel de aanval op d4 verleidelijk leek, heeft deze uitwisseling twee grote problemen gecreëerd: ten eerste verminderde het de flexibiliteit van je stukken; en ten tweede maakte het strategisch druk op andere lijnen mogelijk zonder dat jij die druk kon weerstaan. Een betere zet zou waren om hier te blijven staan of een minder directe uitwisseling te kiezen, waardoor de stelling meer open stond voor jouw volgende plannen (zoals het ontwikkelen van je queenside). De les hier is: denk niet alleen aan wat je op dit moment wilt bereiken, maar ook wat het kost om dat stuk van e4 te krijgen.</p>
+    
+    <div class='board-wrapper'>
+      <div id='eval_container_11' class='eval-bar-container'>
+        <div id='eval_bar_11' class='eval-bar-fill'></div>
+      </div>
+      <div class='board-container'>
+        <div id='board_11' class='board' data-ply='11' data-move='d3e4' data-scorebefore='0.71' data-scoreafter='-0.11'></div>
+      </div>
+    </div>
+
+    <div class='btn-container'>
+      <button class='nav-btn prev-btn' data-board='11'>◀ Vorige</button>
+      <button class='nav-btn reset-btn' data-board='11'>Kritiek Moment</button>
+      <button class='nav-btn next-btn' data-board='11'>Volgende ▶</button>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 8 (O-O) - Mistake</div>
+    <div class='eval-tag'>Score voor: 1.32 | Score na: 0.29</div>
+    <p>De Koning naar g1 (O-O) was een Mistake. De motor wijst hierop omdat de koningsveiligheid niet optimaal is gemaximaliseerd in deze stelling. Door de rokade te doen zonder eerst voldoende ruimte te creëren of het centrale veld goed te controleren, opende je onnodig lijnen voor de zwarte stukken. Een veiliger en strategischere optie was om hier even uit te wijken met een subtieler ontwikkelingsplan (bijvoorbeeld via Nd2), waardoor je de controle over je centrum kon vergroten zonder meteen een volledige flankverdediging in het spel te zetten. De sleutel is: elke grote manoeuvre, zoals de rokade, moet volledig gepland zijn en dienen om direct één of meerdere strategische problemen op te lossen.</p>
+    
+    <div class='board-wrapper'>
+      <div id='eval_container_15' class='eval-bar-container'>
+        <div id='eval_bar_15' class='eval-bar-fill'></div>
+      </div>
+      <div class='board-container'>
+        <div id='board_15' class='board' data-ply='15' data-move='e1g1' data-scorebefore='1.32' data-scoreafter='0.29'></div>
+      </div>
+    </div>
+
+    <div class='btn-container'>
+      <button class='nav-btn prev-btn' data-board='15'>◀ Vorige</button>
+      <button class='nav-btn reset-btn' data-board='15'>Kritiek Moment</button>
+      <button class='nav-btn next-btn' data-board='15'>Volgende ▶</button>
+    </div>
+  </div>
+    <h2>3. Gepersonaliseerd Huiswerk & Focus</h2>
+    <div class='homework'>We gaan je training verleggen van louter tactisch kijken naar structureel denken. Voor elke nieuwe partij speel je nu twee 'Mini-Analyse's' voordat je ook maar één zet maakt. De eerste vraag is: 'Welke pionnenstructuur heeft de tegenstander gecreëerd, en welke zwakheid zit daarin?' De tweede vraag is: 'Wat is mijn meest defensieve zet (de beste verdedigingszet) om deze zwakte te neutraliseren?' Je moet eerst die twee vragen schriftelijk beantwoorden voordat je overweegt tot een aanvallende lijn. Dit dwingt je om de fundamenten van de partij altijd voorop te stellen.</div>
+  </div>
+  <script>
+    $(document).ready(function(){
+      var pColor = 'white'.toLowerCase() === 'black' ? 'black' : 'white';
+      var rawPgn = "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2026.05.02\"]\n[Round \"-\"]\n[White \"ThaMies\"]\n[Black \"68ytvvhjn\"]\n[Result \"1-0\"]\n[CurrentPosition \"8/7p/6pk/8/1P1PpP2/R2bK2P/5PP1/8 b - - 3 34\"]\n[Timezone \"UTC\"]\n[ECO \"D00\"]\n[ECOUrl \"https://www.chess.com/openings/Queens-Pawn-Opening-Chigorin-Variation-2...e6-3.Bf4\"]\n[UTCDate \"2026.05.02\"]\n[UTCTime \"15:38:36\"]\n[WhiteElo \"1130\"]\n[BlackElo \"1124\"]\n[TimeControl \"600\"]\n[Termination \"ThaMies won by resignation\"]\n[StartTime \"15:38:36\"]\n[EndDate \"2026.05.02\"]\n[EndTime \"15:44:42\"]\n[Link \"https://www.chess.com/game/live/168137472226\"]\n\n1. d4 {[%clk 0:09:56.9]} 1... d5 {[%clk 0:09:58.8]} 2. Nc3 {[%clk 0:09:55.6]} 2... e6 {[%clk 0:09:58]} 3. Bf4 {[%clk 0:09:51.4]} 3... Bb4 {[%clk 0:09:56.7]} 4. e3 {[%clk 0:09:48.7]} 4... Nf6 {[%clk 0:09:54.3]} 5. Bd3 {[%clk 0:09:34.5]} 5... Ne4 {[%clk 0:09:44.6]} 6. Bxe4 {[%clk 0:09:31.4]} 6... dxe4 {[%clk 0:09:44.4]} 7. Ne2 {[%clk 0:09:23.2]} 7... O-O {[%clk 0:09:41.7]} 8. O-O {[%clk 0:09:21.8]} 8... f5 {[%clk 0:09:36]} 9. a3 {[%clk 0:09:07.9]} 9... Bd6 {[%clk 0:09:34.1]} 10. Qd2 {[%clk 0:08:48.9]} 10... Bxf4 {[%clk 0:09:32.3]} 11. Nxf4 {[%clk 0:08:47.8]} 11... c6 {[%clk 0:09:30.1]} 12. Na4 {[%clk 0:08:26.1]} 12... b5 {[%clk 0:09:26]} 13. Nc5 {[%clk 0:08:17.5]} 13... Nd7 {[%clk 0:09:22]} 14. Ncxe6 {[%clk 0:08:06.9]} 14... Qe7 {[%clk 0:09:20.4]} 15. Nxf8 {[%clk 0:07:52.2]} 15... Kxf8 {[%clk 0:09:20.3]} 16. Qb4 {[%clk 0:07:43.2]} 16... Qxb4 {[%clk 0:09:13.3]} 17. axb4 {[%clk 0:07:40.5]} 17... Nb6 {[%clk 0:09:13]} 18. b3 {[%clk 0:07:19.5]} 18... Nd5 {[%clk 0:09:07.3]} 19. Nxd5 {[%clk 0:07:07]} 19... cxd5 {[%clk 0:09:07.2]} 20. Ra5 {[%clk 0:07:00.5]} 20... a6 {[%clk 0:09:01.6]} 21. Rfa1 {[%clk 0:06:58.4]} 21... g6 {[%clk 0:08:57.7]} 22. h3 {[%clk 0:06:56.5]} 22... Kf7 {[%clk 0:08:55]} 23. Kf1 {[%clk 0:06:55.6]} 23... Kf6 {[%clk 0:08:53.9]} 24. Ke2 {[%clk 0:06:54.8]} 24... Kg5 {[%clk 0:08:51.8]} 25. c3 {[%clk 0:06:50.9]} 25... f4 {[%clk 0:08:49.7]} 26. exf4+ {[%clk 0:06:42.7]} 26... Kh5 {[%clk 0:08:48.7]} 27. c4 {[%clk 0:06:36.3]} 27... dxc4 {[%clk 0:08:44.6]} 28. bxc4 {[%clk 0:06:34.5]} 28... Kh6 {[%clk 0:08:36.9]} 29. cxb5 {[%clk 0:06:28.6]} 29... Be6 {[%clk 0:08:30.2]} 30. Rxa6 {[%clk 0:06:15.7]} 30... Bc4+ {[%clk 0:08:27.6]} 31. Ke3 {[%clk 0:06:08.1]} 31... Rxa6 {[%clk 0:08:22.4]} 32. Rxa6 {[%clk 0:06:06.2]} 32... Bxb5 {[%clk 0:08:22.3]} 33. Ra1 {[%clk 0:05:57.1]} 33... Bd3 {[%clk 0:08:20.3]} 34. Ra3 {[%clk 0:05:43.8]} 1-0\n";
+      
+      var cleanPgn = rawPgn.replace(/\{[^\}]*\}/g, '');
+      var mainChess = new Chess();
+      mainChess.load_pgn(cleanPgn);
+      var fullHistory = mainChess.history({ verbose: true });
+
+      var activeBoards = {};
+
+      // Universele evaluatiefunctie met actieve/inactieve afhandeling
+      function updateEvalBar(ply, scoreText, forceInactive) {
+        var container = $('#eval_container_' + ply);
+        var fill = $('#eval_bar_' + ply);
+
+        if (forceInactive) {
+          container.addClass('inactive');
+          fill.addClass('inactive');
+          return;
+        }
+
+        container.removeClass('inactive');
+        fill.removeClass('inactive');
+
+        var score = parseFloat(scoreText);
+        if (isNaN(score)) {
+          score = scoreText.includes('-') ? -10 : 10;
+        }
+        
+        var percentage = 50 + (score * 10);
+        percentage = Math.max(5, Math.min(95, percentage));
+        
+        if (pColor === 'black') {
+          percentage = 100 - percentage;
+        }
+        fill.css('height', percentage + '%');
+      }
+
+      $('.board').each(function(){
+        var boardId = $(this).attr('id');
+        var ply = parseInt($(this).data('ply'), 10);
+        var moveUci = $(this).data('move');
+        var scoreBefore = $(this).data('scorebefore').toString();
+        var scoreAfter = $(this).data('scoreafter').toString();
+        
+        var targetChess = new Chess();
+        var blunderPlyIndex = ply - 1;
+        
+        for (var i = 0; i < blunderPlyIndex; i++) {
+          if (fullHistory[i]) { targetChess.move(fullHistory[i]); }
+        }
+        
+        var board = Chessboard(boardId, {
+          position: targetChess.fen(),
+          orientation: pColor,
+          showNotation: true,
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        
+        activeBoards[ply] = {
+          boardInstance: board,
+          initialHistoryIndex: blunderPlyIndex,
+          currentHistoryIndex: blunderPlyIndex,
+          moveUci: moveUci,
+          scoreBefore: scoreBefore,
+          scoreAfter: scoreAfter
+        };
+
+        // Start met de score VÓÓR de blunder
+        updateEvalBar(ply, scoreBefore, false);
+        
+        if (moveUci && moveUci.length === 4) {
+          highlightSquares(boardId, moveUci);
+        }
+      });
+
+      function highlightSquares(boardId, uci) {
+        $('#' + boardId + ' .square-55d63').css('background-color', '');
+        var fromStr = uci.substring(0,2);
+        var toStr = uci.substring(2,4);
+        $('#' + boardId + ' .square-' + fromStr).css('background-color', 'rgba(231,76,60,0.55)');
+        $('#' + boardId + ' .square-' + toStr).css('background-color', 'rgba(231,76,60,0.55)');
+      }
+
+      function evaluateStepBar(ply) {
+        var state = activeBoards[ply];
+        
+        if (state.currentHistoryIndex === state.initialHistoryIndex) {
+          // Exact op het kritieke moment -> Toon score VÓÓR blunder
+          updateEvalBar(ply, state.scoreBefore, false);
+        } else if (state.currentHistoryIndex === state.initialHistoryIndex + 1) {
+          // Exact één zet verder (de blunder is gedaan) -> Toon score NA blunder
+          updateEvalBar(ply, state.scoreAfter, false);
+        } else {
+          // Handmatig ergens anders in de partij -> Zet op inactief/grijs
+          updateEvalBar(ply, null, true);
+        }
+      }
+
+      $('.prev-btn').click(function() {
+        var ply = $(this).data('board');
+        var state = activeBoards[ply];
+        if (state.currentHistoryIndex > 0) {
+          state.currentHistoryIndex--;
+          rebuildBoardState(ply);
+          evaluateStepBar(ply);
+        }
+      });
+
+      $('.next-btn').click(function() {
+        var ply = $(this).data('board');
+        var state = activeBoards[ply];
+        if (state.currentHistoryIndex < fullHistory.length) {
+          state.currentHistoryIndex++;
+          rebuildBoardState(ply);
+          evaluateStepBar(ply);
+        }
+      });
+
+      $('.reset-btn').click(function() {
+        var ply = $(this).data('board');
+        var state = activeBoards[ply];
+        state.currentHistoryIndex = state.initialHistoryIndex;
+        rebuildBoardState(ply);
+        updateEvalBar(ply, state.scoreBefore, false);
+        highlightSquares('board_' + ply, state.moveUci);
+      });
+
+      function rebuildBoardState(ply) {
+        var state = activeBoards[ply];
+        var tempChess = new Chess();
+        for (var i = 0; i < state.currentHistoryIndex; i++) {
+          tempChess.move(fullHistory[i]);
+        }
+        state.boardInstance.position(tempChess.fen());
+        $('#board_' + ply + ' .square-55d63').css('background-color', ''); 
+      }
+    });
+  </script>
+</body>
+</html>
