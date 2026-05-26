@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang='nl'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Schaakanalyse - Onbekend</title>
+  <link rel='stylesheet' href='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'>
+  <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js'></script>
+  <script src='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 40px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #242424; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+    h1 { color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 12px; font-size: 2.2em; margin-bottom: 5px; }
+    h2 { color: #2196f3; margin-top: 40px; border-bottom: 1px solid #3d3d3d; padding-bottom: 8px; }
+    .meta-info { color: #aaa; font-style: italic; margin-bottom: 30px; }
+    .trend-box { background: #2c3e50; border-left: 4px solid #3498db; padding: 20px; border-radius: 4px; margin: 20px 0; }
+    
+    /* Blunder Cards */
+    .moment-card { background: #2e2e2e; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .moment-header { font-weight: bold; color: #e74c3c; font-size: 1.2em; margin-bottom: 10px; }
+    
+    /* Brilliant Cards */
+    .moment-card.brilliant { border-left-color: #2ecc71; background: #1e3028; }
+    .moment-card.brilliant .moment-header { color: #2ecc71; }
+    .moment-card.brilliant .reset-btn { background-color: #1b4d31; border-color: #2ecc71; }
+
+    .eval-tag { display: inline-block; background: #3d3d3d; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; margin: 5px 0 15px 0; font-family: monospace; }
+    .board-wrapper { display: flex; justify-content: center; align-items: stretch; margin: 20px 0; gap: 15px; width: 100%; }
+    .board { width: 340px; }
+    
+    .eval-bar-container { width: 20px; background-color: #111; border: 2px solid #555; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; transition: opacity 0.3s; }
+    .eval-bar-fill { width: 100%; height: 50%; background-color: #fff; transition: height 0.4s; }
+    .eval-bar-container.inactive { opacity: 0.2; }
+
+    .btn-container { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+    .nav-btn { background-color: #3d3d3d; color: #fff; border: 1px solid #555; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.9em; transition: 0.2s; }
+    .reset-btn { background-color: #2c3e50; border-color: #3498db; font-weight: bold; }
+    
+    .homework { background: #1e382b; border: 1px solid #27ae60; padding: 20px; border-radius: 6px; margin-top: 40px; }
+    strong { color: #fff; }
+    a { color: #2196f3; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <h1>Uitgebreide Schaakanalyse</h1>
+    <div class='meta-info'>Opening: Onbekend | Datum: 26 mei 2026 | <a href='https://www.chess.com/game/live/168409723896' target='_blank'>Chess.com</a> | <a href='https://lichess.org/' target='_blank'>Lichess</a></div>
+    <h2>Strategische Terugblik & Trends</h2>
+    <div class='trend-box'>ThaMies, jouw spel is een scherp contrast van explosieve genialiteit afgewisseld met momenten van serieuze onoplettendheid. Je hebt blijk gegeven van diepgaande tactische intuïtie (zoals op ply 14), waarbij je de tegenstander dwingt tot complexe verdedigingslijnen. Dit wijst op een actieve, aanvallende aard.<br>Echter, wanneer de druk toeneemt of het bord minder direct lijkt, zien we dat je neigt naar 'tunnelvisie'. Je ziet één schitterende, directe lijn en mist de grotere positionele implicaties. De blunder op ply 24 was een klassiek voorbeeld van dit probleem: in plaats van te anticiperen op de volgende twee zetten (een preventieve blik), richtte je je enkel op het direct winnen van materiaal. Dit kostte je cruciale tijd en initieerde een onnodig nadelig pion-structuur.</div>
+    <h2>1. Diepgaande Analyse van de Fouten</h2>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 1 (c6) - Inaccuracy</div>
+    <div class='eval-tag'>Score voor: 0.28 | Score na: 0.69</div>
+    <p>Geen schriftelijke analyse beschikbaar.</p>
+    
+    <div class='board-wrapper'>
+      <div id='eval_container_2' class='eval-bar-container'>
+        <div id='eval_bar_2' class='eval-bar-fill'></div>
+      </div>
+      <div class='board-container'>
+        <div id='board_2' class='board' data-ply='2' data-move='c7c6' data-scorebefore='0.28' data-scoreafter='0.69'></div>
+      </div>
+    </div>
+
+    <div class='btn-container'>
+      <button class='nav-btn prev-btn' data-board='2'>◀ Vorige</button>
+      <button class='nav-btn reset-btn' data-board='2'>Kritiek Moment</button>
+      <button class='nav-btn next-btn' data-board='2'>Volgende ▶</button>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 19 (Qc7) - Inaccuracy</div>
+    <div class='eval-tag'>Score voor: -6.74 | Score na: -6.25</div>
+    <p>Geen schriftelijke analyse beschikbaar.</p>
+    
+    <div class='board-wrapper'>
+      <div id='eval_container_38' class='eval-bar-container'>
+        <div id='eval_bar_38' class='eval-bar-fill'></div>
+      </div>
+      <div class='board-container'>
+        <div id='board_38' class='board' data-ply='38' data-move='e7c7' data-scorebefore='-6.74' data-scoreafter='-6.25'></div>
+      </div>
+    </div>
+
+    <div class='btn-container'>
+      <button class='nav-btn prev-btn' data-board='38'>◀ Vorige</button>
+      <button class='nav-btn reset-btn' data-board='38'>Kritiek Moment</button>
+      <button class='nav-btn next-btn' data-board='38'>Volgende ▶</button>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 21 (Bxd3) - Inaccuracy</div>
+    <div class='eval-tag'>Score voor: -7.20 | Score na: -6.69</div>
+    <p>Geen schriftelijke analyse beschikbaar.</p>
+    
+    <div class='board-wrapper'>
+      <div id='eval_container_42' class='eval-bar-container'>
+        <div id='eval_bar_42' class='eval-bar-fill'></div>
+      </div>
+      <div class='board-container'>
+        <div id='board_42' class='board' data-ply='42' data-move='g6d3' data-scorebefore='-7.20' data-scoreafter='-6.69'></div>
+      </div>
+    </div>
+
+    <div class='btn-container'>
+      <button class='nav-btn prev-btn' data-board='42'>◀ Vorige</button>
+      <button class='nav-btn reset-btn' data-board='42'>Kritiek Moment</button>
+      <button class='nav-btn next-btn' data-board='42'>Volgende ▶</button>
+    </div>
+  </div>
+    
+    <h2>Persoonlijk Huiswerk</h2>
+    <div class='homework'>Neem de 'Zwakke Plek'-analyse als huiswerk: Zoek in drie verschillende openingen (bijvoorbeeld de Italiaanse of Siciliaanse) twee plekken die historisch gezien zwak zijn. Analyseer vervolgens, voor elke zet, niet alleen wat je wilt bereiken, maar ook welke verdediging van de tegenstander jou het meest kwetsbaar maakt. Train preventief denken.</div>
+  </div>
+  <script>
+    $(document).ready(function(){
+      var pColor = 'black'.toLowerCase() === 'black' ? 'black' : 'white';
+      var rawPgn = "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2026.05.08\"]\n[Round \"-\"]\n[White \"abdosh94\"]\n[Black \"ThaMies\"]\n[Result \"0-1\"]\n[CurrentPosition \"r4rk1/5pp1/3bp2p/1b4P1/8/1P5P/P1q2P2/R3R1K1 w - - 0 23\"]\n[Timezone \"UTC\"]\n[ECO \"B10\"]\n[ECOUrl \"https://www.chess.com/openings/Caro-Kann-Defense\"]\n[UTCDate \"2026.05.08\"]\n[UTCTime \"13:06:37\"]\n[WhiteElo \"1178\"]\n[BlackElo \"1186\"]\n[TimeControl \"600\"]\n[Termination \"ThaMies won by resignation\"]\n[StartTime \"13:06:37\"]\n[EndDate \"2026.05.08\"]\n[EndTime \"13:13:02\"]\n[Link \"https://www.chess.com/game/live/168409723896\"]\n\n1. e4 {[%clk 0:09:57.8]} 1... c6 {[%clk 0:09:58.6]} 2. Bc4 {[%clk 0:09:56.4]} 2... d5 {[%clk 0:09:57.6]} 3. exd5 {[%clk 0:09:55.2]} 3... cxd5 {[%clk 0:09:57.5]} 4. Bb3 {[%clk 0:09:53.1]} 4... Nc6 {[%clk 0:09:56.5]} 5. Nf3 {[%clk 0:09:48.8]} 5... Bg4 {[%clk 0:09:54.4]} 6. h3 {[%clk 0:09:45.9]} 6... Bh5 {[%clk 0:09:48.8]} 7. Nc3 {[%clk 0:09:41.5]} 7... e6 {[%clk 0:09:32.8]} 8. g4 {[%clk 0:09:38]} 8... Bg6 {[%clk 0:09:31]} 9. O-O {[%clk 0:09:34.8]} 9... Bd6 {[%clk 0:09:12.5]} 10. Re1 {[%clk 0:09:33.4]} 10... Nge7 {[%clk 0:08:55.9]} 11. d3 {[%clk 0:09:31.3]} 11... O-O {[%clk 0:08:53.6]} 12. Bg5 {[%clk 0:09:29]} 12... h6 {[%clk 0:08:44.3]} 13. Bxe7 {[%clk 0:09:27.3]} 13... Qxe7 {[%clk 0:08:39.5]} 14. Nh4 {[%clk 0:09:26]} 14... Qxh4 {[%clk 0:08:32.4]} 15. Nb5 {[%clk 0:09:18.1]} 15... Qe7 {[%clk 0:08:18.1]} 16. Qf3 {[%clk 0:09:14.5]} 16... a6 {[%clk 0:07:46.1]} 17. Bxd5 {[%clk 0:09:12.8]} 17... axb5 {[%clk 0:07:30]} 18. Bxc6 {[%clk 0:09:04.7]} 18... bxc6 {[%clk 0:07:21.8]} 19. Qxc6 {[%clk 0:09:02.8]} 19... Qc7 {[%clk 0:06:41]} 20. Qxb5 {[%clk 0:08:58.6]} 20... Qxc2 {[%clk 0:05:50.6]} 21. b3 {[%clk 0:08:49.4]} 21... Bxd3 {[%clk 0:05:09.8]} 22. g5 {[%clk 0:08:43.1]} 22... Bxb5 {[%clk 0:05:01]} 0-1\n";
+      var cleanPgn = rawPgn.replace(/\{[^\}]*\}/g, '');
+      var mainChess = new Chess();
+      mainChess.load_pgn(cleanPgn);
+      var fullHistory = mainChess.history({ verbose: true });
+      var activeBoards = {};
+
+      function updateEvalBar(ply, scoreText, forceInactive) {
+        var container = $('#eval_container_' + ply);
+        var fill = $('#eval_bar_' + ply);
+        if (forceInactive) { container.addClass('inactive'); return; }
+        container.removeClass('inactive');
+        var score = parseFloat(scoreText);
+        if (isNaN(score)) { score = scoreText.includes('-') ? -10 : 10; }
+        var percentage = 50 + (score * 10);
+        percentage = Math.max(5, Math.min(95, percentage));
+        if (pColor === 'black') percentage = 100 - percentage;
+        fill.css('height', percentage + '%');
+      }
+
+      $('.board').each(function(){
+        var bId = $(this).attr('id');
+        var ply = parseInt($(this).data('ply'), 10);
+        var moveUci = $(this).data('move');
+        var scoreBefore = $(this).data('scorebefore').toString();
+        var scoreAfter = $(this).data('scoreafter').toString();
+        
+        var targetChess = new Chess();
+        for (var i = 0; i < ply - 1; i++) { if (fullHistory[i]) targetChess.move(fullHistory[i]); }
+        
+        var board = Chessboard(bId, {
+          position: targetChess.fen(),
+          orientation: pColor,
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        
+        activeBoards[ply] = { boardInstance: board, initialHistoryIndex: ply - 1, currentHistoryIndex: ply - 1, moveUci: moveUci, scoreBefore: scoreBefore, scoreAfter: scoreAfter };
+        updateEvalBar(ply, scoreBefore, false);
+        highlightSquares(bId, moveUci);
+      });
+
+      function highlightSquares(bId, uci) {
+        var from = uci.substring(0,2); var to = uci.substring(2,4);
+        $('#' + bId + ' .square-55d63').css('background-color', '');
+        $('#' + bId + ' .square-' + from).css('background-color', 'rgba(231,76,60,0.4)');
+        $('#' + bId + ' .square-' + to).css('background-color', 'rgba(231,76,60,0.4)');
+      }
+
+      function evaluateStepBar(ply) {
+        var s = activeBoards[ply];
+        if (s.currentHistoryIndex === s.initialHistoryIndex) updateEvalBar(ply, s.scoreBefore, false);
+        else if (s.currentHistoryIndex === s.initialHistoryIndex + 1) updateEvalBar(ply, s.scoreAfter, false);
+        else updateEvalBar(ply, null, true);
+      }
+
+      $('.prev-btn, .next-btn, .reset-btn').click(function() {
+        var ply = $(this).data('board'); var s = activeBoards[ply];
+        if ($(this).hasClass('prev-btn') && s.currentHistoryIndex > 0) s.currentHistoryIndex--;
+        else if ($(this).hasClass('next-btn') && s.currentHistoryIndex < fullHistory.length) s.currentHistoryIndex++;
+        else if ($(this).hasClass('reset-btn')) s.currentHistoryIndex = s.initialHistoryIndex;
+        
+        var tempChess = new Chess();
+        for (var i = 0; i < s.currentHistoryIndex; i++) tempChess.move(fullHistory[i]);
+        s.boardInstance.position(tempChess.fen());
+        $('#board_' + ply + ' .square-55d63').css('background-color', ''); 
+        if (s.currentHistoryIndex === s.initialHistoryIndex) highlightSquares('board_' + ply, s.moveUci);
+        evaluateStepBar(ply);
+      });
+    });
+  </script>
+</body>
+</html>
