@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang='nl'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Schaakanalyse - Onbekend</title>
+  <link rel='stylesheet' href='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'>
+  <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js'></script>
+  <script src='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 40px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #242424; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+    h1 { color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 12px; font-size: 2.2em; margin-bottom: 5px; }
+    h2 { color: #2196f3; margin-top: 40px; border-bottom: 1px solid #3d3d3d; padding-bottom: 8px; }
+    .meta-info { color: #aaa; font-style: italic; margin-bottom: 30px; }
+    .trend-box { background: #2c3e50; border-left: 4px solid #3498db; padding: 20px; border-radius: 4px; margin: 20px 0; }
+    .moment-card { background: #2e2e2e; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .moment-header { font-weight: bold; color: #e74c3c; font-size: 1.1em; margin-bottom: 10px; }
+    .eval-tag { display: inline-block; background: #3d3d3d; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; margin: 5px 0 15px 0; font-family: monospace; }
+    .board-container { display: flex; justify-content: center; margin: 20px 0; width: 100%; }
+    .board { width: 340px; }
+    .homework { background: #1e382b; border: 1px solid #27ae60; padding: 20px; border-radius: 6px; margin-top: 40px; }
+    strong { color: #fff; }
+    a { color: #2196f3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <h1>Uitgebreide Schaakanalyse</h1>
+    <div class='meta-info'>Opening: Onbekend | Partij gespeeld op: 01 mei 2026 | <a href='https://lichess.org/0VCgqL0K' target='_blank'>Interactief Lichess Bord</a></div>
+    <h2>1. Strategische Terugblik & Trends</h2>
+    <div class='trend-box'>ThaMies, het patroon dat we zien vandaag – en helaas in je vorige analyses ook – is pijnlijk duidelijk. Je bent een vechter van groot kaliber; je zult nooit opgeven totdat de klok leeg is. Dat is een immense psychologische kracht die we moeten behouden! Maar je blijft struikelen over dezelfde valkuilen: tunnelvisie en positionele onoplettendheid. <br>In eerdere partijen was het vaak een te haastige pionbreuk of een blunder in de opening die je initiatief kosten. Vandaag zien we dat dit probleem is geëvolueerd naar blunders midden in de actie, toen je probeerde tegenaan te slaan of druk te zetten (zoals bij 28. Qh2+). Je richtte al je energie op één aanvalspad en liet daardoor structurele kwetsbaarheden ontstaan die zwart direct kon uitbuiten. <br>Dit is geen kwestie van pure kennis; het is een focusprobleem onder druk. We moeten de 'Blundercheck' (Staat dit stuk veilig?) verankeren in elke fase, maar we gaan er nu één stap verder: de 'Integriteitscheck'. Je moet jezelf vragen: 'Als ik hier aanval, welk deel van mijn pionnenstructuur of materiaal betaal ik ervoor?' We moeten voorkomen dat je offensieve intentie altijd leidt tot een tekortkoming in je basisverdediging. De overgang van het middenspel naar het eindspel vereist nu niet alleen vechtlust, maar ook strategisch rustig bloedgemais.<br>Je hebt de potentie om superieur te zijn; we moeten gewoon de focus verleggen van *wat ik kan bereiken* naar *wat ik absoluut moet behouden*. Hou vast aan die veerkracht, maar laat hem sturen door ijzersterke voorzichtige planning.</div>
+    <h2>2. Diepgaande Analyse van de Kritieke Momenten</h2>
+    
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 10 (g6) - Blunder</div>
+    <div class='eval-tag'>Score voor: -1.79 | Score na: 0.33</div>
+    <p>Dit was een klassieke positionele verwatering. Hoewel de engine dit markeert als 'Blunder', is het vooral omdat je hier momentum verliest in plaats van het te behouden. Je had al veel ontwikkelde stukken en relatief goede controle over het centrum gehad. Door g6 te spelen, creëer je een onnodig zwak punt op h6 en versnel je de opening van die flankeerstructuur. Een sterker alternatief was om bijvoorbeeld aanvallend te blijven in het centrum of strategisch druk uit te oefenen zonder structurele verzwakkingen te accepteren. Denk eraan: elke pion heeft zijn doel, en g6 dient nu niet.</p>
+    <div class='board-container'>
+      <div id='board_20' class='board' data-movenumber='10' data-color='black' data-move='g7g6'></div>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 12 (Qg3) - Blunder</div>
+    <div class='eval-tag'>Score voor: -2.88 | Score na: -1.16</div>
+    <p>Hier zien we de terugkeer van tunnelvisie in actie. Je stapt met Qg3, mogelijk gedreven door het gevoel dat je de aanval moet voortzetten of het initiatief moet heroveren. Maar je negeert radicaal het feit dat je koningin op g3 een perfect doelwit wordt voor zwarte stukken. Door te veel te focussen op de 'aanval' voel je jezelf blijkbaar niet veilig genoeg om simpelweg passief te spelen of strategische controle te behouden. Het alternatief was om uw stelling meer te consolideren, misschien door eerst een koord aan te trekken (zoals via c4) voordat u zo risicovol speelde.</p>
+    <div class='board-container'>
+      <div id='board_24' class='board' data-movenumber='12' data-color='black' data-move='h4g3'></div>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 14 (Qh2+) - Blunder</div>
+    <div class='eval-tag'>Score voor: -4.68 | Score na: -1.24</div>
+    <p>Dit is de meest pijnlijke blondering van vandaag en het trekt een directe lijn naar je eerdere fouten. Je zet uw dame op h2+, wat zeer tactisch lijkt, maar je verwaarloost de materiële veiligheid. Door deze onnodige of te agressieve manoeuvre geef je zwart de kans om met groot voordeel te reageren. De engine wijst een enorme degradatie van 3.44 pionnen aan. Dit type blunder gebeurt wanneer het brein 'te veel' wil: te veel aanvallen, te veel initiatief tonen. Neem een moment pauze en vraag jezelf af: 'Wat is de *minste* actie die mijn positie versterkt?' Die zet was dat niet.</p>
+    <div class='board-container'>
+      <div id='board_28' class='board' data-movenumber='14' data-color='black' data-move='g3h2'></div>
+    </div>
+  </div>
+    <h2>3. Gepersonaliseerd Huiswerk & Focus</h2>
+    <div class='homework'>Voor je volgende sessie wil ik dat je twee conceptuele controles integreert in elke denkstap. Ten eerste, pas de 'Stel-de-Zelf-Vraag' toe: voordat je beweegt, vraag je jezelf af of jouw *tegenstander* een pion kan verplaatsen die direct het centrum opent en jou onnodige zwakte geeft. Ten tweede, oefen met 'De Materiaal-Audit': na elke zet van de tegenstander, telt u in uw hoofd snel alle stukken (paarden, lopers, etc.) en beoordeelt u of er nog een verdedigbare uitwisselingsruimte is voordat u überhaupt nadenkt over een aanval.</div>
+  </div>
+  <script>
+    $(document).ready(function(){
+      // We laden de schone zetten geschiedenis rechtstreeks in als JS Array
+      var movesHistory = [];
+      var pColor = 'black'.toLowerCase() === 'black' ? 'black' : 'white';
+      
+      $('.board').each(function(){
+        var boardId = $(this).attr('id');
+        var moveNumber = parseInt($(this).data('movenumber'), 10);
+        var moveColor = $(this).data('color');
+        var moveUci = $(this).data('move');
+        
+        // Bereken exact hoeveel zetten we in de array moeten nadoen
+        // Voorbeeld: Zet 21 van Wit = (21 - 1) * 2 = 40 zetten nadoen om stelling VÓÓR de zet te krijgen.
+        var targetPly = (moveNumber - 1) * 2;
+        if (moveColor === 'b' || moveColor === 'black') {
+          targetPly += 1; // Als het een zwarte blunder is, moet de witte zet van die ronde er al bij zitten
+        }
+        
+        var chess = new Chess();
+        
+        // Loop door de schone geschiedenis heen
+        for(var i = 0; i < targetPly; i++){
+          if(movesHistory[i]) { 
+            chess.move(movesHistory[i]); 
+          }
+        }
+        
+        var fenBefore = chess.fen();
+        var board = Chessboard(boardId, {
+          position: fenBefore,
+          orientation: pColor,
+          showNotation: true,
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        
+        if(moveUci && moveUci.length === 4){
+          var fromSquare = moveUci.substring(0,2);
+          var toSquare = moveUci.substring(2,4);
+          setTimeout(function(){
+            $('#' + boardId + ' .square-' + fromSquare).css('background-color', 'rgba(231,76,60,0.55)');
+            $('#' + boardId + ' .square-' + toSquare).css('background-color', 'rgba(231,76,60,0.55)');
+          }, 200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
