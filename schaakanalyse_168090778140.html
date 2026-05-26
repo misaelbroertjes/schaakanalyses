@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang='nl'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Schaakanalyse - Onbekend</title>
+  <link rel='stylesheet' href='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'>
+  <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js'></script>
+  <script src='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 40px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #242424; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+    h1 { color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 12px; font-size: 2.2em; margin-bottom: 5px; }
+    h2 { color: #2196f3; margin-top: 40px; border-bottom: 1px solid #3d3d3d; padding-bottom: 8px; }
+    .meta-info { color: #aaa; font-style: italic; margin-bottom: 30px; }
+    .trend-box { background: #2c3e50; border-left: 4px solid #3498db; padding: 20px; border-radius: 4px; margin: 20px 0; }
+    .moment-card { background: #2e2e2e; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .moment-header { font-weight: bold; color: #e74c3c; font-size: 1.1em; margin-bottom: 10px; }
+    .eval-tag { display: inline-block; background: #3d3d3d; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; margin: 5px 0 15px 0; font-family: monospace; }
+    .board-container { display: flex; justify-content: center; margin: 20px 0; width: 100%; }
+    .board { width: 340px; }
+    .homework { background: #1e382b; border: 1px solid #27ae60; padding: 20px; border-radius: 6px; margin-top: 40px; }
+    strong { color: #fff; }
+    a { color: #2196f3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <h1>Uitgebreide Schaakanalyse</h1>
+    <div class='meta-info'>Opening: Onbekend | Partij gespeeld op: 01 mei 2026 | <a href='https://lichess.org/43n6BKgp' target='_blank'>Interactief Lichess Bord</a></div>
+    <h2>1. Strategische Terugblik & Trends</h2>
+    <div class='trend-box'>ThaMies, je speelst op het niveau van een zeer enthousiaste vechter. Je bent uitstekend in staat om aanvallende druk te uitoefenen en initiatief te behouden; dit is je grootste kracht, zoals we eerder hebben gezien met je actieve spel in de Queen's Pawn Game. Wat nu nog steeds gemist wordt, is het consistent toepassen van onze 'Integriteitscheck'. We zijn vergevorderd geweest van blunders die direct materiaal kostten (zoals 13... Nxf3+ of 21. Qd3??), maar vandaag zien we een terugval naar strategische onoplettendheden. Je blunder op zet 19 (Bg5) en de gemiste kansen op zet 20 waren geen pure materiële blunders, maar eerder tekenen van tunnelvisie: je keek te veel naar het sluiten van de aanval of een specifiek stuk, waardoor de grotere strategische waarde van bepaalde velden over het hoofd werd gezien. Dit is een directe herhaling van wat we zagen toen je in eerdere partijen structurele controle verloor ten gunste van één tactisch plan. Je bent nog niet klaar om pure aanval te voeren; eerst moet de basis (pionstructuren en centrale controle) ijzersterk zijn. De lessen van het 'Twee-Seconden-Check' moeten nu worden uitgebreid met een 'Structurele Stabiliteitscheck' voordat je elke zet doet.</div>
+    <h2>2. Diepgaande Analyse van de Kritieke Momenten</h2>
+    
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 19 (Bg5) - Blunder</div>
+    <div class='eval-tag'>Score voor: -2.51 | Score na: 0.04</div>
+    <p>Op zet 19. Bg5 was dit een blunder die jouw strategische voorsprong enorm verminderde. Hoewel het op eerste gezicht lijkt alsof je druk uitoefent met de loper, negeer je hiermee de centrale stabiliteit en geef je Wit te veel middelen om aanvallend tegenaan te slaan. Je focust te sterk op de tactische uitwisseling, terwijl je het strategisch veld openwerkt voor Witte contra-actie. De loper moest hier beter ing een meer verdedigende, centrale positie of achter een pionnenstructuur blijven om maximale druk te behouden zonder onnodige blootstelling.</p>
+    <div class='board-container'>
+      <div id='board_38' class='board' data-movenumber='19' data-color='black' data-move='h4g5'></div>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 20 (Bd3) - Blunder</div>
+    <div class='eval-tag'>Score voor: -2.58 | Score na: -0.25</div>
+    <p>Dit moment illustreert perfect de valkuil van tunnelvisie. Op zet 20. Bd3 probeer je een stuk in het spel te krijgen en druk op te zetten, maar je negeert de algehele coördinatie van je stukken ten opzichte van Witte koning en pionnenstructuur. Je stelt jezelf aan een plek waar je tegenstander makkelijk kan counteren zonder dat jij direct het initiatief houdt. De engine wijst hierop omdat deze zet niet alleen strategisch onnodig was, maar ook de kans om te verdedigen of structureel een voordeel te creëren, miste. Je moet altijd vragen: 'Verbetert dit mijn algemene structuur OF stelt het mij in staat een duidelijk plan uit te voeren?'</p>
+    <div class='board-container'>
+      <div id='board_40' class='board' data-movenumber='20' data-color='black' data-move='f5d3'></div>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 21 (g6) - Blunder</div>
+    <div class='eval-tag'>Score voor: -0.34 | Score na: 4.49</div>
+    <p>Op zet 21... g6 is dit een zeer pijnlijk moment dat bijna letterlijk de controle van je koning en flankstructuur verzwakte ten gunste van Witte. Het creëerde te veel 'gaps' rondom je koningsflank. In een complex middenspel moet elke pionbeweging een duidelijke strategische reden hebben, vooral als deze het defensieve karakter van de structuur beïnvloedt. Door hier zo onvoorzichtig te bewegen, geef je Witte een perfect ankerpunt om hun aanval op gang te brengen en jezelf in een passieve, reactieve positie te manoeuvreren.</p>
+    <div class='board-container'>
+      <div id='board_42' class='board' data-movenumber='21' data-color='black' data-move='g7g6'></div>
+    </div>
+  </div>
+    <h2>3. Gepersonaliseerd Huiswerk & Focus</h2>
+    <div class='homework'>Voor de komende paar partijen moet je drie checks uitvoeren vóórdat je je stuk beweegt: Eerst de 'Integriteitscheck': Zijn al mijn pionnenstructuren stabiel en veilig? Ten tweede, de 'Blundercheck': Kan mijn tegenstander dit specifieke stuk of veld gratis slaan met een koekje? En ten slotte, voer je de 'Structurele Check' uit: Welk blokkeringspunt in het middenveld kan ik versterken om mijn aanvalsintentie te ondersteunen? Dit drie-fasen denken moet nu routine worden.</div>
+  </div>
+  <script>
+    $(document).ready(function(){
+      // We laden de schone zetten geschiedenis rechtstreeks in als JS Array
+      var movesHistory = [];
+      var pColor = 'black'.toLowerCase() === 'black' ? 'black' : 'white';
+      
+      $('.board').each(function(){
+        var boardId = $(this).attr('id');
+        var moveNumber = parseInt($(this).data('movenumber'), 10);
+        var moveColor = $(this).data('color');
+        var moveUci = $(this).data('move');
+        
+        // Bereken exact hoeveel zetten we in de array moeten nadoen
+        // Voorbeeld: Zet 21 van Wit = (21 - 1) * 2 = 40 zetten nadoen om stelling VÓÓR de zet te krijgen.
+        var targetPly = (moveNumber - 1) * 2;
+        if (moveColor === 'b' || moveColor === 'black') {
+          targetPly += 1; // Als het een zwarte blunder is, moet de witte zet van die ronde er al bij zitten
+        }
+        
+        var chess = new Chess();
+        
+        // Loop door de schone geschiedenis heen
+        for(var i = 0; i < targetPly; i++){
+          if(movesHistory[i]) { 
+            chess.move(movesHistory[i]); 
+          }
+        }
+        
+        var fenBefore = chess.fen();
+        var board = Chessboard(boardId, {
+          position: fenBefore,
+          orientation: pColor,
+          showNotation: true,
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        
+        if(moveUci && moveUci.length === 4){
+          var fromSquare = moveUci.substring(0,2);
+          var toSquare = moveUci.substring(2,4);
+          setTimeout(function(){
+            $('#' + boardId + ' .square-' + fromSquare).css('background-color', 'rgba(231,76,60,0.55)');
+            $('#' + boardId + ' .square-' + toSquare).css('background-color', 'rgba(231,76,60,0.55)');
+          }, 200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
