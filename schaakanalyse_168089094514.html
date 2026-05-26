@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang='nl'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Schaakanalyse - Onbekend</title>
+  <link rel='stylesheet' href='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css'>
+  <script src='https://code.jquery.com/jquery-3.5.1.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js'></script>
+  <script src='https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js'></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #1a1a1a; color: #e0e0e0; margin: 0; padding: 40px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #242424; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.7); }
+    h1 { color: #4caf50; border-bottom: 2px solid #4caf50; padding-bottom: 12px; font-size: 2.2em; margin-bottom: 5px; }
+    h2 { color: #2196f3; margin-top: 40px; border-bottom: 1px solid #3d3d3d; padding-bottom: 8px; }
+    .meta-info { color: #aaa; font-style: italic; margin-bottom: 30px; }
+    .trend-box { background: #2c3e50; border-left: 4px solid #3498db; padding: 20px; border-radius: 4px; margin: 20px 0; }
+    .moment-card { background: #2e2e2e; border-left: 4px solid #e74c3c; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .moment-header { font-weight: bold; color: #e74c3c; font-size: 1.1em; margin-bottom: 10px; }
+    .eval-tag { display: inline-block; background: #3d3d3d; padding: 3px 8px; border-radius: 4px; font-size: 0.9em; margin: 5px 0 15px 0; font-family: monospace; }
+    .board-container { display: flex; justify-content: center; margin: 20px 0; width: 100%; }
+    .board { width: 340px; }
+    .homework { background: #1e382b; border: 1px solid #27ae60; padding: 20px; border-radius: 6px; margin-top: 40px; }
+    strong { color: #fff; }
+    a { color: #2196f3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <h1>Uitgebreide Schaakanalyse</h1>
+    <div class='meta-info'>Opening: Onbekend | Partij gespeeld op: 01 mei 2026 | <a href='https://lichess.org/dvlavHTO' target='_blank'>Interactief Lichess Bord</a></div>
+    <h2>1. Strategische Terugblik & Trends</h2>
+    <div class='trend-box'>ThaMies, laten we even de patronen analyseren. Je hebt blunders gemaakt die wijzen op een patroon dat we nog niet volledig hebben doorbroken: het risico nemen zonder eerst te verifiëren of de basis sterk genoeg is om die aanval te ondersteunen. Vandaag zagen we dit drie keer terug in de vorm van verkeerde koningsplaatsingen (ply 48), agressief maar onverantwoord stukzetten (ply 28) en een overhaaste strategische zet (ply 26).<br><br>We hebben het al besproken dat je blunders ontstaan wanneer de focus te ver ligt op het *aanvallen* van het vijandelijke materiaal, in plaats van eerst te garanderen dat jouw eigen materieel en koning veilig zijn. Kijk terug naar die blunder bij ply 48: een schokkend groot verschil van bijna 7.6 pond! Dit is niet zomaar een blunders; dit zijn structurele misstappen in je planvorming. Het gaat hier niet alleen om het slaan van pionnen, maar om de lange termijnstabiliteit van de hele stelling.<br><br>De 'Calculatie-Cascade Check' moet nu evolueren naar de 'Driehoek-Check': 1) Is mijn zet veilig (Verdediging)? 2) Wat is de directe dreiging op het bord? 3) Welke strategische gevolgen heeft dit voor mijn koning en pionnenstructuur over de komende vijf zetten?<br>Je vechtlust blijft een kracht, ThaMies. Maar die vechtlust moet nu gemarkeerd worden door ijzersterke verdediging. We moeten blunders van vandaag (die allemaal wijzen op onvoldoende berekening) zien als bewijs dat we nog te veel vertrouwen op pure agressie en te weinig op kalme, methodische stabiliteit.</div>
+    <h2>2. Diepgaande Analyse van de Kritieke Momenten</h2>
+    
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 13 (O-O) - Blunder</div>
+    <div class='eval-tag'>Score voor: -1.57 | Score na: 0.99</div>
+    <p>Dit was een moment waarop je de strategische prioriteiten verwarde. Hoewel koningkapsling (O-O) vaak gewenst is, werd deze zet hier te vroeg en met de verkeerde intentie uitgevoerd. De engine wijst op een significante achteruitgang van 2.56 pionnen omdat jouw stukken in deze fase nog niet zo geoptimaliseerd waren dat een simpele castling direct het initiatief nam. Het nadeel was dat je middelen verspilde aan de koningsveiligheid terwijl er tactische voordelen op andere velden te grijpen vielen, of ten minste: een meer ingetogen stukverplaatsing zoals ...Bd7 had de druk beter beheerd zonder strategisch achterop te raken.</p>
+    <div class='board-container'>
+      <div id='board_26' class='board' data-ply='26' data-move='e8g8'></div>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 14 (Nb4) - Blunder</div>
+    <div class='eval-tag'>Score voor: 1.39 | Score na: 3.83</div>
+    <p>Dit is misschien wel het meest typische voorbeeld van wat we hebben besproken over tactische onoplettendheid. De sprong van het paard naar b4 was op zichzelf niet fout, maar de timing en de context waren desastreus. Door deze zet creëerde je een te groot strategisch voordeel voor de tegenstander, die hierna kon profiteren van zwakke plekken in jouw centrumverdediging. De engine toont aan dat dit een blunder is van 2.44 pionnen. Het alternatief was om eerst het tempo en de druk op andere delen van het bord te zoeken, bijvoorbeeld door je stukken meer coördinerend te positioneren, of door simpelweg wachtende moves te spelen in plaats van deze directe materiaalverliezende aanval.</p>
+    <div class='board-container'>
+      <div id='board_28' class='board' data-ply='28' data-move='c6b4'></div>
+    </div>
+  </div>
+  <div class='moment-card'>
+    <div class='moment-header'>Zet 24 (Kf8) - Blunder</div>
+    <div class='eval-tag'>Score voor: -2.27 | Score na: 5.36</div>
+    <p>Dit moment is een harde les in koningsveiligheid en de waarde van je middelen. De zet Kf8 was catastrofaal omdat het jouw koning onnodig blootstelde aan aanvallen via de f-lijn of e-lijn, waardoor White enorme strategische voordelen kreeg met slechts enkele pionnenverplaatsingen. Het verlies van 7.63 pionnen is een directe weerspiegeling van hoe cruciaal het is om je koningsstructuur te beoordelen voordat je aanvalt. In plaats van deze onveiligste zet, had je moeten overwegen je stukken in te trekken en de koning veilig naar g8 of e7 te brengen, waar hij minder kwetsbaar was voor diagonale aanvallen.</p>
+    <div class='board-container'>
+      <div id='board_48' class='board' data-ply='48' data-move='g8f8'></div>
+    </div>
+  </div>
+    <h2>3. Gepersonaliseerd Huiswerk & Focus</h2>
+    <div class='homework'>Voor de komende partijen moet je een verplichte 'Defensie-Scan' uitvoeren. Voordat je één stuk verplaatst: 1) Scan naar alle lange en korte lijnen die van het veld waar jouw koning staat, doorgaan. 2) Benoem hardop (of in je hoofd): 'Waar valt mijn tegenstander mij nu aan?' 3) Zoek vervolgens naar de meest robuuste plek voor jouw stuk; speel dan pas. Dit dwingt je om te denken als verdediger, wat je weerbaarder maakt.</div>
+  </div>
+  <div id='pgn-holder' data-pgn-live="[Event &quot;Live Chess&quot;]\n[Site &quot;Chess.com&quot;]\n[Date &quot;2026.05.01&quot;]\n[Round &quot;-&quot;]\n[White &quot;Clarashinta311&quot;]\n[Black &quot;ThaMies&quot;]\n[Result &quot;1-0&quot;]\n[CurrentPosition &quot;3r2n1/pp3pQ1/3kp3/1P1p4/1Pr5/6RP/5PP1/4R1K1 w - - 3 31&quot;]\n[Timezone &quot;UTC&quot;]\n[ECO &quot;B12&quot;]\n[ECOUrl &quot;https://www.chess.com/openings/Caro-Kann-Defense-Advance-Botvinnik-Carls-Defense-4.Nf3-Bg4&quot;]\n[UTCDate &quot;2026.05.01&quot;]\n[UTCTime &quot;14:38:40&quot;]\n[WhiteElo &quot;1107&quot;]\n[BlackElo &quot;1114&quot;]\n[TimeControl &quot;600&quot;]\n[Termination &quot;Clarashinta311 won by resignation&quot;]\n[StartTime &quot;14:38:40&quot;]\n[EndDate &quot;2026.05.01&quot;]\n[EndTime &quot;14:50:23&quot;]\n[Link &quot;https://www.chess.com/game/live/168089094514&quot;]\n\n1. e4 {[%clk 0:09:58.2]} 1... c6 {[%clk 0:09:52.9]} 2. d4 {[%clk 0:09:51.7]} 2... d5 {[%clk 0:09:44.5]} 3. e5 {[%clk 0:09:50.2]} 3... c5 {[%clk 0:09:42.4]} 4. Nf3 {[%clk 0:09:41]} 4... Bg4 {[%clk 0:09:40.4]} 5. Be2 {[%clk 0:09:33.9]} 5... e6 {[%clk 0:09:31.3]} 6. h3 {[%clk 0:09:27]} 6... Bxf3 {[%clk 0:09:13.7]} 7. Bxf3 {[%clk 0:09:24.4]} 7... Nc6 {[%clk 0:09:13.2]} 8. dxc5 {[%clk 0:09:08.5]} 8... Bxc5 {[%clk 0:08:59.4]} 9. O-O {[%clk 0:09:05.1]} 9... Nxe5 {[%clk 0:08:57.1]} 10. Be2 {[%clk 0:08:52.8]} 10... Nc6 {[%clk 0:08:50.8]} 11. a3 {[%clk 0:08:49.1]} 11... Nge7 {[%clk 0:08:47]} 12. b4 {[%clk 0:08:40.1]} 12... Bd4 {[%clk 0:08:30]} 13. Ra2 {[%clk 0:08:35.4]} 13... O-O {[%clk 0:08:21.6]} 14. b5 {[%clk 0:08:27.7]} 14... Nb4 {[%clk 0:07:37.6]} 15. axb4 {[%clk 0:08:20.5]} 15... Qb6 {[%clk 0:07:31.1]} 16. c3 {[%clk 0:07:56.9]} 16... Bf6 {[%clk 0:07:16.4]} 17. Be3 {[%clk 0:07:51.6]} 17... Qc7 {[%clk 0:06:17]} 18. Nd2 {[%clk 0:07:47.2]} 18... Bxc3 {[%clk 0:05:53.2]} 19. Rc2 {[%clk 0:07:39.9]} 19... Rfc8 {[%clk 0:05:33.3]} 20. Bd3 {[%clk 0:07:09.8]} 20... Qd8 {[%clk 0:04:58]} 21. Bxh7+ {[%clk 0:06:55.4]} 21... Kxh7 {[%clk 0:04:39]} 22. Qh5+ {[%clk 0:06:52.1]} 22... Kg8 {[%clk 0:04:35.2]} 23. Bg5 {[%clk 0:06:38.3]} 23... Bxd2 {[%clk 0:03:54.4]} 24. Rxd2 {[%clk 0:06:23.1]} 24... Kf8 {[%clk 0:03:42.3]} 25. Qh8+ {[%clk 0:06:14.5]} 25... Ng8 {[%clk 0:03:38.3]} 26. Bxd8 {[%clk 0:06:12.7]} 26... Rxd8 {[%clk 0:03:38.2]} 27. Rd3 {[%clk 0:05:58.4]} 27... Rac8 {[%clk 0:03:36.7]} 28. Rg3 {[%clk 0:05:54.8]} 28... Ke7 {[%clk 0:03:28.4]} 29. Qxg7 {[%clk 0:05:44.8]} 29... Rc4 {[%clk 0:03:22.5]} 30. Re1 {[%clk 0:05:30.2]} 30... Kd6 {[%clk 0:03:05.8]} 1-0\n" style='display:none;'></div>
+  <script>
+    $(document).ready(function(){
+      var rawPgn = document.getElementById('pgn-holder').getAttribute('data-pgn-live');
+      var pColor = 'black'.toLowerCase();
+      $('.board').each(function(){
+        var boardId = $(this).attr('id');
+        var ply = parseInt($(this).data('ply'), 10);
+        var moveUci = $(this).data('move');
+        var chess = new Chess();
+        var validPgn = rawPgn.replace(/\[%\s.*?\]/g,'');
+        chess.load_pgn(validPgn);
+        var history = chess.history({verbose: true});
+        var targetChess = new Chess();
+        for(var i = 0; i < ply - 1; i++){
+          if(history[i]) { targetChess.move(history[i]); }
+        }
+        var fenBefore = targetChess.fen();
+        var board = Chessboard(boardId, {
+          position: fenBefore,
+          orientation: pColor,
+          showNotation: true,
+          // Gecorrigeerde stabiele link naar de wikipedia schaakstukken:
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        if(moveUci && moveUci.length === 4){
+          var fromSquare = moveUci.substring(0,2);
+          var toSquare = moveUci.substring(2,4);
+          setTimeout(function(){
+            $('#' + boardId + ' .square-' + fromSquare).css('background-color', 'rgba(231,76,60,0.55)');
+            $('#' + boardId + ' .square-' + toSquare).css('background-color', 'rgba(231,76,60,0.55)');
+          }, 200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
