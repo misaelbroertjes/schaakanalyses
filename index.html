@@ -1257,43 +1257,40 @@
           pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         });
         
-        activeBoards[ply] = { 
-          boardInstance: board, 
-          initialHistoryIndex: ply - 1, 
-          currentHistoryIndex: ply - 1, 
-          moveUci: moveUci, 
-          scoreBefore: scoreBefore, 
-          scoreAfter: scoreAfter 
-        };
-        
-        updateEvalBar(ply, scoreBefore, false);
-        highlightSquares(bId, moveUci);
-      });
+        activeBoards[ply] = { boardInstance: board, initialHistoryIndex: ply - 1, currentHistoryIndex: ply - 1, moveUci: moveUci, scoreBefore: scoreBefore, scoreAfter: scoreAfter };
+      
+      // Bind pointerdown capture phase listener for click-to-move
+      this.addEventListener('pointerdown', function(e) {
+        const squareEl = e.target.closest('.square-55d63');
+        if (!squareEl) return;
+        const square = $(squareEl).data('square');
+        handleSquareClick(ply, bId, square);
+      }, true);
+      
+      updateEvalBar(ply, scoreBefore, false);
+      highlightSquares(bId, moveUci);
+    });
 
       // Small Board Navigation Controls
-      // Click-to-move (Tap-to-move) support for practice puzzle boards
-      $(document).on('click', '.board .square-55d63', function() {
-        const bId = $(this).closest('.board').attr('id');
-        const ply = parseInt($(this).closest('.board').data('ply'), 10);
+            // Click-to-move (Tap-to-move) helper function using capture phase events
+      function handleSquareClick(ply, bId, square) {
         const s = activeBoards[ply];
-        
-        // Only trigger if practice mode is active and puzzle is not solved yet
         if (!s || !s.practiceMode || s.puzzleSolved) return;
         
-        const square = $(this).data('square');
         const tempChess = new Chess(s.practiceFen);
         const piece = tempChess.get(square);
+        const activeTurn = tempChess.turn();
         
         if (!s.selectedSquare) {
-          // Step 1: Select piece of player's color
-          if (piece && piece.color === tempChess.turn()) {
+          // Step 1: Select own piece
+          if (piece && piece.color === activeTurn) {
             s.selectedSquare = square;
             // Highlight selected square orange
             $('#' + bId + ' .square-55d63').css('background-color', '');
             $('#' + bId + ' .square-' + square).css('background-color', 'rgba(245, 158, 11, 0.45)');
           }
         } else {
-          // Step 2: Second click, try to play the move
+          // Step 2: Try to execute move
           const fromSquare = s.selectedSquare;
           const toSquare = square;
           
@@ -1304,7 +1301,6 @@
           });
           
           if (move) {
-            // Legal move executed!
             s.selectedSquare = null;
             $('#' + bId + ' .square-55d63').css('background-color', '');
             s.boardInstance.position(tempChess.fen());
@@ -1328,19 +1324,19 @@
               }, 1000);
             }
           } else {
-            // Illegal move. Check if they clicked another of their own pieces to change selection
-            if (piece && piece.color === tempChess.turn()) {
+            // Clicked another of own pieces, switch selection
+            if (piece && piece.color === activeTurn) {
               s.selectedSquare = square;
               $('#' + bId + ' .square-55d63').css('background-color', '');
               $('#' + bId + ' .square-' + square).css('background-color', 'rgba(245, 158, 11, 0.45)');
             } else {
-              // Clicked elsewhere, clear selection
+              // Clicked elsewhere, cancel selection
               s.selectedSquare = null;
               $('#' + bId + ' .square-55d63').css('background-color', '');
             }
           }
         }
-      });
+      }
 
       // Practice Button click handler
       $('.practice-btn').off('click').click(function() {
