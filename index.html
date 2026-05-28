@@ -1270,7 +1270,7 @@
       if (blunders.length > 0) {
         container.append('<h2>Diepgaande Analyse van de Fouten</h2>');
         blunders.forEach((m, idx) => {
-          container.append(generateMomentHtml(m, feedback.critical_moments_analyses || [], 'critical', idx));
+          container.append(generateMomentHtml(m, feedback.critical_moments_analyses || [], 'critical', idx, fullHistory));
         });
       }
       
@@ -1278,7 +1278,7 @@
       if (brilliants.length > 0) {
         container.append('<h2>Schitterende Hoogtepunten</h2>');
         brilliants.forEach((m, idx) => {
-          container.append(generateMomentHtml(m, feedback.brilliant_moments_analyses || [], 'brilliant', idx));
+          container.append(generateMomentHtml(m, feedback.brilliant_moments_analyses || [], 'brilliant', idx, fullHistory));
         });
       }
       
@@ -1553,7 +1553,7 @@
     }
 
     // Helper: generate HTML code for blunder/brilliant cards
-    function generateMomentHtml(moment, aiAnalyses, type, itemIndex) {
+    function generateMomentHtml(moment, aiAnalyses, type, itemIndex, fullHistory) {
       const currentPly = moment.ply;
       let aiMatch = aiAnalyses.find(a => a && parseInt(a.ply, 10) === parseInt(currentPly, 10));
       let analysisText = "";
@@ -1577,6 +1577,30 @@
       
       analysisText = analysisText.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 
+      let isBestMoveValid = false;
+      if (aiMatch && aiMatch.best_move_san && fullHistory) {
+        try {
+          const testChess = new Chess();
+          for (let i = 0; i < currentPly - 1; i++) {
+            if (fullHistory[i]) testChess.move(fullHistory[i]);
+          }
+          const moveRes = testChess.move(aiMatch.best_move_san);
+          isBestMoveValid = (moveRes !== null);
+        } catch (e) {
+          isBestMoveValid = false;
+        }
+      }
+
+      let warningHtml = "";
+      if (aiMatch && aiMatch.best_move_san && !isBestMoveValid) {
+        warningHtml = `
+          <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 10px 15px; border-radius: 8px; font-size: 0.9em; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-triangle-exclamation" style="color: #fca5a5;"></i>
+            <span>Oefenstand niet beschikbaar: de AI-coach stelde een ongeldige zet voor (<strong>${aiMatch.best_move_san}</strong>).</span>
+          </div>
+        `;
+      }
+
       const cardClass = type === 'brilliant' ? 'moment-card brilliant' : 'moment-card';
       const headerIcon = type === 'brilliant' ? '<i class="fa-solid fa-star" style="color: #f1c40f;"></i> ' : '';
 
@@ -1585,6 +1609,7 @@
           <div class="moment-header">${headerIcon}Zet ${moment.moveNumber} (${moment.move}) - ${moment.judgment}</div>
           <div class="eval-tag">Score voor: ${moment.scoreBefore} | Score na: ${moment.scoreAfter}</div>
           <p>${analysisText}</p>
+          ${warningHtml}
           <div id="card_message_${currentPly}" style="display: none; padding: 10px 15px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.95em;"></div>
           <div class="board-wrapper">
             <div id="eval_container_${currentPly}" class="eval-bar-container">
@@ -1598,7 +1623,7 @@
             <button class="nav-btn prev-btn" data-board="${currentPly}">◀ Vorige</button>
             <button class="nav-btn reset-btn" data-board="${currentPly}">Kritiek Moment</button>
             <button class="nav-btn next-btn" data-board="${currentPly}">Volgende ▶</button>
-            ${aiMatch && aiMatch.best_move_san ? `<button class="nav-btn practice-btn" style="background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
+            ${isBestMoveValid ? `<button class="nav-btn practice-btn" style="background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
           </div>
         </div>
       `;
