@@ -481,6 +481,9 @@
       overflow: hidden;
       touch-action: none;
     }
+    .board .square-55d63 {
+      cursor: pointer;
+    }
     
     .eval-bar-container {
       width: 16px;
@@ -1268,6 +1271,77 @@
       });
 
       // Small Board Navigation Controls
+      // Click-to-move (Tap-to-move) support for practice puzzle boards
+      $(document).on('click', '.board .square-55d63', function() {
+        const bId = $(this).closest('.board').attr('id');
+        const ply = parseInt($(this).closest('.board').data('ply'), 10);
+        const s = activeBoards[ply];
+        
+        // Only trigger if practice mode is active and puzzle is not solved yet
+        if (!s || !s.practiceMode || s.puzzleSolved) return;
+        
+        const square = $(this).data('square');
+        const tempChess = new Chess(s.practiceFen);
+        const piece = tempChess.get(square);
+        
+        if (!s.selectedSquare) {
+          // Step 1: Select piece of player's color
+          if (piece && piece.color === tempChess.turn()) {
+            s.selectedSquare = square;
+            // Highlight selected square orange
+            $('#' + bId + ' .square-55d63').css('background-color', '');
+            $('#' + bId + ' .square-' + square).css('background-color', 'rgba(245, 158, 11, 0.45)');
+          }
+        } else {
+          // Step 2: Second click, try to play the move
+          const fromSquare = s.selectedSquare;
+          const toSquare = square;
+          
+          const move = tempChess.move({
+            from: fromSquare,
+            to: toSquare,
+            promotion: 'q'
+          });
+          
+          if (move) {
+            // Legal move executed!
+            s.selectedSquare = null;
+            $('#' + bId + ' .square-55d63').css('background-color', '');
+            s.boardInstance.position(tempChess.fen());
+            
+            const playedSan = move.san;
+            const targetSan = s.bestMoveSan;
+            
+            if (playedSan === targetSan || 
+                (move.from + move.to) === targetSan || 
+                playedSan.replace('+', '') === targetSan.replace('+', '')) {
+              s.puzzleSolved = true;
+              s.currentHistoryIndex = s.initialHistoryIndex + 1;
+              s.practiceFen = tempChess.fen();
+              $('#card_' + ply).css('border-left-color', 'var(--success)');
+              $('#card_message_' + ply).html('<span style="color:var(--success); font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Uitstekend! Dit is de juiste zet (' + playedSan + ')!</span>');
+              highlightPuzzleSuccess(bId, fromSquare, toSquare);
+            } else {
+              $('#card_message_' + ply).html('<span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-circle-xmark"></i> Niet helemaal correct (' + playedSan + '). Probeer het nog eens!</span>');
+              setTimeout(() => {
+                s.boardInstance.position(s.practiceFen);
+              }, 1000);
+            }
+          } else {
+            // Illegal move. Check if they clicked another of their own pieces to change selection
+            if (piece && piece.color === tempChess.turn()) {
+              s.selectedSquare = square;
+              $('#' + bId + ' .square-55d63').css('background-color', '');
+              $('#' + bId + ' .square-' + square).css('background-color', 'rgba(245, 158, 11, 0.45)');
+            } else {
+              // Clicked elsewhere, clear selection
+              s.selectedSquare = null;
+              $('#' + bId + ' .square-55d63').css('background-color', '');
+            }
+          }
+        }
+      });
+
       // Practice Button click handler
       $('.practice-btn').off('click').click(function() {
         const ply = $(this).data('board');
@@ -1276,6 +1350,7 @@
         
         if (s.practiceMode) {
           s.practiceMode = false;
+          s.selectedSquare = null; // Clear selection
           $(this).html('🎯 Oefen stand').css('background-color', 'rgba(245,158,11,0.15)');
           $('#card_message_' + ply).hide();
           $('#card_' + ply).css('border-left-color', '');
