@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Schaakanalyses Portal</title>
+  <!-- Outfit Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Chessboard.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <!-- FontAwesome for Premium Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- JQuery & Chess Libraries -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+  <!-- Chart.js for Eval Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Supabase client JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- config.js contains window.SUPABASE_URL and window.SUPABASE_ANON_KEY -->
+  <script src="config.js" onerror="console.warn('config.js kon niet worden geladen. Vul de credentials handmatig in.');"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0a0a0e;
+      --bg-main: #0f0f15;
+      --card-bg: rgba(22, 22, 33, 0.65);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary: #10b981;
+      --secondary: #3b82f6;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --border: rgba(255, 255, 255, 0.08);
+      --glass-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-dark) 70%);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Portal Container */
+    .portal-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* Header Design */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2.2em;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--success), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    h1 i {
+      color: var(--success);
+      -webkit-text-fill-color: initial;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      border-color: var(--secondary);
+      color: white;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-primary {
+      background: var(--secondary);
+      border-color: var(--secondary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    /* Loading and Message States */
+    .loading-state, .error-state, .setup-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      text-align: center;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--glass-glow);
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border-left-color: var(--secondary);
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Dashboard Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--glass-glow);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: 0 12px 40px 0 rgba(59, 130, 246, 0.15);
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--secondary);
+    }
+
+    .game-card.win::before { background: var(--success); }
+    .game-card.loss::before { background: var(--danger); }
+    .game-card.draw::before { background: var(--text-muted); }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .opening-badge {
+      background: rgba(59, 130, 246, 0.1);
+      color: #93c5fd;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85em;
+      font-weight: 600;
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .date-badge {
+      color: var(--text-muted);
+      font-size: 0.85em;
+    }
+
+    .card-body {
+      margin-bottom: 20px;
+    }
+
+    .player-line {
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .color-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .color-dot.white { background: #fff; }
+    .color-dot.black { background: #000; }
+
+    .result-text {
+      font-size: 0.9em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Analysis Dashboard View */
+    .analysis-container {
+      display: none;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: var(--glass-glow);
+    }
+
+    .meta-info {
+      color: var(--text-muted);
+      font-size: 1.05em;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 15px;
+    }
+    
+    .meta-info a {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    
+    .meta-info a:hover { color: #60a5fa; }
+
+    /* REPLAY CENTER Layout */
+    .replay-center {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .board-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    .main-board { width: 420px; max-width: 100%; }
+    
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      background: rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      height: 480px;
+    }
+    
+    .tab-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+    
+    .tab-btn.active {
+      background: var(--secondary);
+      color: white;
+    }
+    
+    .tab-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .tab-content.active { display: block; }
+    
+    /* MOVE LIST DESIGN */
+    .move-list {
+      display: grid;
+      grid-template-columns: 0.4fr 1fr 1fr;
+      gap: 5px 10px;
+      font-family: monospace;
+      font-size: 1.1em;
+    }
+    
+    .move-item {
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.1s;
+    }
+    
+    .move-number { color: var(--text-muted); cursor: default; }
+    
+    .move-item.playable:hover {
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
+    
+    .move-item.active-move {
+      background: var(--secondary);
+      color: white;
+      font-weight: bold;
+    }
+    
+    /* EVAL BAR DESIGN */
+    .board-row {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+    
+    .main-eval-bar {
+      width: 24px;
+      background-color: #1a1a24;
+      border: 2px solid #3f3f46;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    .main-eval-fill {
+      width: 100%;
+      height: 50%;
+      background-color: #ffffff;
+      transition: height 0.3s ease-out;
+    }
+    
+    .main-eval-text {
+      font-family: monospace;
+      font-size: 1.1em;
+      font-weight: bold;
+      margin-top: 5px;
+      color: var(--text-main);
+    }
+    
+    /* COACH REVIEW SECTIONS */
+    h2 {
+      font-size: 1.8em;
+      color: var(--secondary);
+      margin-top: 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .coach-box {
+      background: rgba(59, 130, 246, 0.08);
+      border-left: 4px solid var(--secondary);
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+      font-size: 1.1em;
+    }
+    
+    .opening-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--success);
+      padding: 20px 25px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+      font-size: 1.1em;
+    }
+    
+    .moment-card {
+      background: rgba(30,30,40,0.5);
+      border-left: 4px solid var(--danger);
+      padding: 20px;
+      margin: 25px 0;
+      border-radius: 0 12px 12px 0;
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    .moment-card.brilliant {
+      border-left-color: var(--warning);
+      background: rgba(245, 158, 11, 0.05);
+    }
+    
+    .moment-header {
+      font-weight: 700;
+      color: var(--danger);
+      font-size: 1.25em;
+      margin-bottom: 10px;
+    }
+    
+    .moment-card.brilliant .moment-header {
+      color: var(--warning);
+    }
+    
+    .eval-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.06);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+      font-family: monospace;
+      border: 1px solid var(--border);
+    }
+    
+    .board-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      gap: 15px;
+      width: 100%;
+    }
+    
+    .board {
+      width: 320px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .eval-bar-container {
+      width: 16px;
+      background-color: #111;
+      border: 1.5px solid #555;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    .eval-bar-fill {
+      width: 100%;
+      height: 50%;
+      background-color: #fff;
+    }
+    
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .nav-btn {
+      background-color: #27272a;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: 0.15s;
+    }
+    
+    .nav-btn:hover {
+      background-color: #3f3f46;
+      border-color: #52525b;
+    }
+    
+    .reset-btn {
+      background-color: rgba(59, 130, 246, 0.15);
+      border-color: var(--secondary);
+      color: #93c5fd;
+    }
+    
+    .reset-btn:hover {
+      background-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    .homework {
+      background: rgba(16, 185, 129, 0.06);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 40px;
+      font-size: 1.1em;
+    }
+    
+    strong { color: #ffffff; }
+
+    /* Legacy Frame View */
+    #legacy-view {
+      display: none;
+      width: 100%;
+      height: calc(100vh - 100px);
+      border: none;
+      border-radius: 12px;
+      box-shadow: var(--glass-glow);
+    }
+    
+    @media (max-width: 900px) {
+      .replay-center {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="portal-container">
+    <!-- Header -->
+    <header>
+      <h1 id="page-title"><i class="fa-solid fa-chess-knight"></i> Premium Schaakanalyses</h1>
+      <div id="header-actions">
+        <!-- Back button (only shown in game view) -->
+        <button id="back-to-portal" class="btn" style="display: none;"><i class="fa-solid fa-arrow-left"></i> Portal Overzicht</button>
+      </div>
+    </header>
+
+    <!-- SETUP STATE (Supabase credentials missing) -->
+    <div id="setup-state" class="setup-state" style="display: none;">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size: 3em; color: var(--warning); margin-bottom: 20px;"></i>
+      <h2>Configuratie Vereist</h2>
+      <p style="max-width: 500px; color: var(--text-muted); margin-bottom: 25px;">
+        Het bestand <code>config.js</code> is nog niet geconfigureerd of bevat nog de standaard placeholders. Vul jouw Supabase URL en Anon Key in om je schaakanalyses op te halen.
+      </p>
+      <div style="text-align: left; background: #000; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9em; width: 100%; max-width: 480px; border: 1px solid var(--border);">
+        window.SUPABASE_URL = "https://your-id.supabase.co";<br>
+        window.SUPABASE_ANON_KEY = "your-anon-key";
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div id="loading-state" class="loading-state" style="display: none;">
+      <div class="spinner"></div>
+      <p id="loading-text">Gegevens laden uit Supabase...</p>
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="error-state" class="error-state" style="display: none;">
+      <i class="fa-solid fa-circle-xmark" style="font-size: 3em; color: var(--danger); margin-bottom: 20px;"></i>
+      <h2 id="error-title">Analyse niet gevonden</h2>
+      <p id="error-message" style="max-width: 500px; color: var(--text-muted); margin-bottom: 20px;">
+        De opgevraagde partij kan niet worden geladen. Controleer of de URL klopt en of de partij al geanalyseerd is.
+      </p>
+      <button id="error-back-btn" class="btn"><i class="fa-solid fa-house"></i> Terug naar Portal</button>
+    </div>
+
+    <!-- PORTAL DASHBOARD VIEW -->
+    <div id="portal-dashboard">
+      <div style="margin-bottom: 30px;">
+        <h2 style="margin-top: 0; color: var(--success);">Recent Geanalyseerde Partijen</h2>
+        <p style="color: var(--text-muted);">Selecteer een partij om de interactieve schaakanalyse en de feedback van de AI-coach te bekijken.</p>
+      </div>
+      <div id="recent-games-list" class="games-grid">
+        <!-- Game Cards will be generated here -->
+      </div>
+    </div>
+
+    <!-- LEGACY IFRAME VIEW (For games stored as full HTML) -->
+    <iframe id="legacy-view"></iframe>
+
+    <!-- SPA GAME VIEW (For new games stored as JSON) -->
+    <div id="spa-game-view" class="analysis-container">
+      <div class="meta-info">
+        Opening: <span id="game-meta-opening">Laden...</span> | 
+        Datum: <span id="game-meta-date">Laden...</span> | 
+        <a id="game-meta-chess-link" href="#" target="_blank">Chess.com <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8em;"></i></a> | 
+        <a id="game-meta-lichess-link" href="#" target="_blank">Lichess <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8em;"></i></a>
+      </div>
+      
+      <!-- REPLAY CENTER -->
+      <h2>Interactieve Partij-Replayer & Evaluatie</h2>
+      <div class="replay-center">
+        <!-- Left: Interactive Board & Eval -->
+        <div class="board-section">
+          <div class="board-row">
+            <div class="main-eval-bar">
+              <div id="main_eval_fill" class="main-eval-fill"></div>
+            </div>
+            <div id="main_board" class="main-board"></div>
+          </div>
+          <div id="main_eval_text" class="main-eval-text">Eval: 0.0</div>
+          <div class="btn-container" style="margin-top: 10px; width: 100%; justify-content: space-evenly;">
+            <button class="nav-btn" id="main_start_btn"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="nav-btn" id="main_prev_btn"><i class="fa-solid fa-chevron-left"></i> Vorige</button>
+            <button class="nav-btn" id="main_next_btn">Volgende <i class="fa-solid fa-chevron-right"></i></button>
+            <button class="nav-btn" id="main_end_btn"><i class="fa-solid fa-forward-step"></i></button>
+          </div>
+        </div>
+        
+        <!-- Right: Move list and chart -->
+        <div class="control-panel">
+          <div class="tab-container">
+            <button class="tab-btn active" data-tab="tab_moves">Zettenlijst</button>
+            <button class="tab-btn" data-tab="tab_chart">Evaluatie-verloop</button>
+          </div>
+          
+          <div id="tab_moves" class="tab-content active">
+            <div id="move_list_container" class="move-list"></div>
+          </div>
+          
+          <div id="tab_chart" class="tab-content" style="height: calc(100% - 50px);">
+            <canvas id="eval_chart" style="width:100%; height:100%;"></canvas>
+          </div>
+        </div>
+      </div>
+      
+      <h2>Openingsfase & Theorie</h2>
+      <div id="opening-analysis-box" class="opening-box"></div>
+      
+      <h2>Strategische Terugblik</h2>
+      <div id="strategic-review-box" class="coach-box"></div>
+      
+      <div id="blunder-section-container">
+        <!-- Blunder and Brilliant sections will be generated dynamically -->
+      </div>
+      
+      <h2>Persoonlijke Huiswerkoefening</h2>
+      <div id="homework-box" class="homework"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let supabaseClient = null;
+
+    // Initialize Supabase client
+    function initSupabase() {
+      const url = window.SUPABASE_URL;
+      const key = window.SUPABASE_ANON_KEY;
+      
+      if (!url || !key || url === 'YOUR_SUPABASE_URL' || key === 'YOUR_SUPABASE_ANON_KEY') {
+        $('#portal-dashboard').hide();
+        $('#setup-state').show();
+        return false;
+      }
+      
+      try {
+        supabaseClient = supabase.createClient(url, key);
+        return true;
+      } catch (err) {
+        console.error('Supabase initialisatie fout:', err);
+        showError('Fout bij verbinden met database', 'Kon geen verbinding maken met Supabase. Controleer je config.js.');
+        return false;
+      }
+    }
+
+    $(document).ready(function() {
+      if (!initSupabase()) return;
+
+      // Handle back button
+      $('#back-to-portal, #error-back-btn').click(function() {
+        window.history.pushState({}, '', window.location.pathname);
+        route();
+      });
+
+      // Route the page
+      route();
+
+      // Listen for browser history navigation
+      window.onpopstate = function() {
+        route();
+      };
+    });
+
+    function route() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameId = urlParams.get('game');
+      
+      // Clean UI states
+      $('#setup-state').hide();
+      $('#error-state').hide();
+      $('#loading-state').hide();
+      $('#portal-dashboard').hide();
+      $('#spa-game-view').hide();
+      $('#legacy-view').hide();
+      $('#back-to-portal').hide();
+      
+      if (gameId) {
+        $('#loading-state').show();
+        $('#back-to-portal').show();
+        loadGame(gameId);
+      } else {
+        $('#loading-state').show();
+        loadPortalDashboard();
+      }
+    }
+
+    function showError(title, message) {
+      $('#loading-state').hide();
+      $('#portal-dashboard').hide();
+      $('#spa-game-view').hide();
+      $('#legacy-view').hide();
+      
+      $('#error-title').text(title);
+      $('#error-message').text(message);
+      $('#error-state').show();
+    }
+
+    // Portal Dashboard: fetch and display recent games
+    async function loadPortalDashboard() {
+      try {
+        // Query last 12 analyzed games
+        const { data, error } = await supabaseClient
+          .from('chess_games')
+          .select('game_url, played_at, opening, winner, player_color, analysis_status')
+          .eq('analysis_status', 'analyzed')
+          .order('played_at', { ascending: false })
+          .limit(12);
+
+        if (error) throw error;
+
+        $('#loading-state').hide();
+        $('#portal-dashboard').show();
+        
+        const container = $('#recent-games-list');
+        container.empty();
+
+        if (!data || data.length === 0) {
+          container.html('<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">Er zijn nog geen geanalyseerde partijen gevonden in Supabase.</div>');
+          return;
+        }
+
+        data.forEach(game => {
+          const gameUrlId = game.game_url.split('/').pop();
+          const playedDate = game.played_at ? new Date(game.played_at).toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Onbekend';
+          
+          let cardClass = 'game-card';
+          let resultIcon = '<i class="fa-solid fa-minus"></i> Remise';
+          
+          if (game.winner === 'Remise') {
+            cardClass += ' draw';
+          } else if (game.winner && game.player_color) {
+            const isWinner = game.winner.toLowerCase() === game.player_color.toLowerCase();
+            cardClass += isWinner ? ' win' : ' loss';
+            resultIcon = isWinner ? 
+              '<i class="fa-solid fa-trophy" style="color:#10b981;"></i> Gewonnen' : 
+              '<i class="fa-solid fa-circle-xmark" style="color:#ef4444;"></i> Verloren';
+          }
+
+          const card = `
+            <div class="${cardClass}">
+              <div class="card-header">
+                <span class="opening-badge" title="${game.opening || 'Onbekende opening'}">${game.opening || 'Onbekende opening'}</span>
+                <span class="date-badge">${playedDate}</span>
+              </div>
+              <div class="card-body">
+                <div class="player-line">
+                  <span class="color-dot ${game.player_color ? game.player_color.toLowerCase() : 'white'}"></span>
+                  Kleur: <strong>${game.player_color === 'white' ? 'Wit' : 'Zwart'}</strong>
+                </div>
+                <div class="result-text">${resultIcon}</div>
+              </div>
+              <a href="?game=${gameUrlId}" class="btn btn-primary" style="text-align: center; justify-content: center; width: 100%; box-sizing: border-box;">Bekijk Analyse</a>
+            </div>
+          `;
+          container.append(card);
+        });
+
+      } catch (err) {
+        console.error('Error fetching portal dashboard data:', err);
+        showError('Fout bij laden portal', 'Kon de recent geanalyseerde partijen niet ophalen uit de database.');
+      }
+    }
+
+    // Game View: load specific game details
+    async function loadGame(gameId) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('chess_games')
+          .select('*')
+          .ilike('game_url', `%${gameId}`)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (!data) {
+          showError('Partij niet gevonden', `De partij met ID "${gameId}" staat niet in de database.`);
+          return;
+        }
+
+        $('#loading-state').hide();
+
+        const feedbackRaw = data.coach_feedback || '';
+
+        // Check if content is HTML (legacy)
+        if (feedbackRaw.trim().startsWith('<!DOCTYPE') || feedbackRaw.trim().startsWith('<html')) {
+          renderLegacyHtml(feedbackRaw);
+        } else {
+          // It's JSON (or we try to parse it as JSON)
+          let parsedFeedback;
+          try {
+            parsedFeedback = typeof feedbackRaw === 'object' ? feedbackRaw : JSON.parse(feedbackRaw);
+          } catch (e) {
+            console.error('Fout bij parsen coach_feedback JSON. Val terug op legacy check.', e);
+            // If it failed parsing, let's treat it as plain text or try to show it
+            parsedFeedback = {
+              discord_summary: "Fout bij laden gedetailleerde AI-coach data.",
+              opening_analysis: "De data is niet in het verwachte formaat opgeslagen.",
+              strategic_review: feedbackRaw
+            };
+          }
+          renderSpaGame(data, parsedFeedback);
+        }
+
+      } catch (err) {
+        console.error('Error fetching game data:', err);
+        showError('Laadfout', 'Er is een fout opgetreden bij het ophalen van de partijgegevens.');
+      }
+    }
+
+    // Render old HTML in an iframe
+    function renderLegacyHtml(htmlString) {
+      $('#spa-game-view').hide();
+      
+      const iframe = document.getElementById('legacy-view');
+      $(iframe).show();
+      
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(htmlString);
+      doc.close();
+    }
+
+    // Render modern SPA from JSON data
+    function renderSpaGame(gameData, feedback) {
+      $('#legacy-view').hide();
+      $('#spa-game-view').show();
+
+      // Set Metadata
+      const playedDate = gameData.played_at ? new Date(gameData.played_at).toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Onbekend';
+      $('#game-meta-opening').text(gameData.opening || 'Onbekend');
+      $('#game-meta-date').text(playedDate);
+      $('#game-meta-chess-link').attr('href', gameData.game_url || '#');
+      $('#game-meta-lichess-link').attr('href', gameData.lichess_url || 'https://lichess.org/');
+
+      // Set Main reviews
+      $('#opening-analysis-box').html(feedback.opening_analysis ? feedback.opening_analysis.replace(/\n/g, '<br>') : 'Geen openingsanalyse beschikbaar.');
+      $('#strategic-review-box').html(feedback.strategic_review ? feedback.strategic_review.replace(/\n/g, '<br>') : 'Geen strategische terugblik beschikbaar.');
+      $('#homework-box').html(feedback.homework_exercise ? feedback.homework_exercise.replace(/\n/g, '<br>') : 'Geen huiswerkoefening gegenereerd.');
+
+      // Initialize Replayer
+      initReplayer(gameData, feedback);
+      
+      // Render Blunders and Highlights
+      renderCriticalMoments(gameData, feedback);
+    }
+
+    // Main Interactive Chess Board & Move List logic
+    function initReplayer(gameData, feedback) {
+      const pColor = (gameData.player_color || 'white').toLowerCase() === 'black' ? 'black' : 'white';
+      const rawPgn = gameData.pgn || '';
+      
+      // Clean PGN comments
+      const cleanPgn = rawPgn.replace(/\\{[^\\}]*\\}/g, '').replace(/\{[^}]*\}/g, '');
+      
+      const mainChess = new Chess();
+      if (!mainChess.load_pgn(cleanPgn)) {
+        console.error('PGN kon niet worden geladen in chess.js');
+      }
+      
+      const fullHistory = mainChess.history({ verbose: true });
+      
+      // Get chart evaluations
+      // We check if chart data was stored in the feedback JSON, or in critical_moments, or we fallback
+      let chartEvals = feedback.evals_chart_data || [];
+      if (chartEvals.length === 0) {
+        // Fallback: build an empty or simulated eval list based on fullHistory
+        chartEvals = fullHistory.map((m, idx) => ({ ply: idx + 1, san: m.san, eval: 0.0 }));
+      }
+      
+      let currentHistoryIndex = -1; // -1 is start position
+      
+      // Initialize Chessboard.js
+      const mainBoard = Chessboard('main_board', {
+        position: 'start',
+        orientation: pColor,
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+      });
+      
+      // Render Move List
+      let moveListHtml = '';
+      for (let i = 0; i < fullHistory.length; i += 2) {
+        const moveNumber = Math.floor(i / 2) + 1;
+        const whiteMove = fullHistory[i] ? fullHistory[i].san : '';
+        const blackMove = fullHistory[i+1] ? fullHistory[i+1].san : '';
+        
+        moveListHtml += `
+          <div class="move-number">${moveNumber}.</div>
+          <div class="move-item playable" id="move_${i}" data-index="${i}">${whiteMove}</div>
+          <div class="move-item playable" id="move_${i+1}" data-index="${i+1}">${blackMove}</div>
+        `;
+      }
+      $('#move_list_container').html(moveListHtml);
+      
+      // Chart.js Evaluation Graph
+      const chartLabels = chartEvals.map(e => {
+        const moveNum = Math.ceil(e.ply / 2);
+        return (e.ply % 2 !== 0) ? `${moveNum}. ${e.san}` : `${moveNum}... ${e.san}`;
+      });
+      const chartValues = chartEvals.map(e => e.eval);
+      
+      const ctx = document.getElementById('eval_chart').getContext('2d');
+      // Destroy old chart instance if exists
+      if (window.myEvalChart) window.myEvalChart.destroy();
+      
+      window.myEvalChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: 'Stockfish Evaluatie',
+            data: chartValues,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.2,
+            pointBackgroundColor: '#3b82f6',
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: -10,
+              max: 10,
+              grid: { color: 'rgba(255, 255, 255, 0.08)' },
+              ticks: { color: '#94a3b8' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          },
+          onClick: function(evt, activeElements) {
+            if (activeElements.length > 0) {
+              const index = activeElements[0].index;
+              goToMove(index);
+            }
+          }
+        }
+      });
+      
+      function updateMainEvalBar(score) {
+        let percentage = 50 + (score * 5);
+        percentage = Math.max(5, Math.min(95, percentage));
+        if (pColor === 'black') percentage = 100 - percentage;
+        $('#main_eval_fill').css('height', percentage + '%');
+        $('#main_eval_text').text('Eval: ' + (score > 0 ? '+' : '') + score.toFixed(2));
+      }
+      
+      function goToMove(index) {
+        if (index < -1 || index >= fullHistory.length) return;
+        currentHistoryIndex = index;
+        
+        const tempChess = new Chess();
+        for (let i = 0; i <= index; i++) {
+          tempChess.move(fullHistory[i]);
+        }
+        
+        mainBoard.position(tempChess.fen());
+        
+        // Update active move styling
+        $('.move-item').removeClass('active-move');
+        if (index >= 0) {
+          $(`#move_${index}`).addClass('active-move');
+          
+          // Auto scroll to active move
+          const container = $('#tab_moves');
+          const activeElement = $(`#move_${index}`);
+          if (activeElement.length) {
+            container.scrollTop(activeElement.offset().top - container.offset().top + container.scrollTop() - 100);
+          }
+        }
+        
+        // Update Main Eval Bar
+        const currentEval = chartEvals[index] ? chartEvals[index].eval : 0.0;
+        updateMainEvalBar(currentEval);
+      }
+      
+      // Control bindings
+      $('#main_start_btn').off('click').click(function() { goToMove(-1); });
+      $('#main_end_btn').off('click').click(function() { goToMove(fullHistory.length - 1); });
+      $('#main_prev_btn').off('click').click(function() { if (currentHistoryIndex > -1) goToMove(currentHistoryIndex - 1); });
+      $('#main_next_btn').off('click').click(function() { if (currentHistoryIndex < fullHistory.length - 1) goToMove(currentHistoryIndex + 1); });
+      $('.move-item.playable').off('click').click(function() { goToMove($(this).data('index')); });
+      
+      // Handle tabs
+      $('.tab-btn').off('click').click(function() {
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-content').removeClass('active');
+        $(`#${$(this).data('tab')}`).addClass('active');
+        if ($(this).data('tab') === 'tab_chart') {
+          window.myEvalChart.resize(); // force redraw
+        }
+      });
+      
+      // Reset board to starting state
+      goToMove(-1);
+    }
+
+    // Build the Blunder / Brilliant cards with interactive small boards
+    function renderCriticalMoments(gameData, feedback) {
+      const pColor = (gameData.player_color || 'white').toLowerCase() === 'black' ? 'black' : 'white';
+      const rawPgn = gameData.pgn || '';
+      const cleanPgn = rawPgn.replace(/\\{[^\\}]*\\}/g, '').replace(/\{[^}]*\}/g, '');
+      
+      const mainChess = new Chess();
+      mainChess.load_pgn(cleanPgn);
+      const fullHistory = mainChess.history({ verbose: true });
+      
+      // Extract critical moments
+      let criticalMoments = [];
+      try {
+        criticalMoments = typeof gameData.critical_moments === 'string' ? JSON.parse(gameData.critical_moments) : (gameData.critical_moments || []);
+      } catch (err) {
+        console.error('Kon critical_moments niet parsen:', err);
+      }
+      
+      // Filter out blunders vs brilliant moves from criticalMoments array
+      const blunders = criticalMoments.filter(m => m.judgment !== 'Brilliant');
+      const brilliants = criticalMoments.filter(m => m.judgment === 'Brilliant');
+      
+      const container = $('#blunder-section-container');
+      container.empty();
+      
+      // 1. Blunders Section
+      if (blunders.length > 0) {
+        container.append('<h2>Diepgaande Analyse van de Fouten</h2>');
+        blunders.forEach((m, idx) => {
+          container.append(generateMomentHtml(m, feedback.critical_moments_analyses || [], 'critical', idx));
+        });
+      }
+      
+      // 2. Brilliant Section
+      if (brilliants.length > 0) {
+        container.append('<h2>Schitterende Hoogtepunten</h2>');
+        brilliants.forEach((m, idx) => {
+          container.append(generateMomentHtml(m, feedback.brilliant_moments_analyses || [], 'brilliant', idx));
+        });
+      }
+      
+      // Initialize the small chessboards for each moment
+      const activeBoards = {};
+      
+      function updateEvalBar(ply, scoreText, forceInactive) {
+        const containerEl = $(`#eval_container_${ply}`);
+        const fillEl = $(`#eval_bar_${ply}`);
+        
+        if (forceInactive) { containerEl.addClass('inactive'); return; }
+        
+        containerEl.removeClass('inactive');
+        let score = parseFloat(scoreText);
+        if (isNaN(score)) { score = scoreText.includes('-') ? -10 : 10; }
+        let percentage = 50 + (score * 10);
+        percentage = Math.max(5, Math.min(95, percentage));
+        if (pColor === 'black') percentage = 100 - percentage;
+        fillEl.css('height', percentage + '%');
+      }
+
+      function highlightSquares(bId, uci) {
+        if (!uci || uci.length < 4) return;
+        const from = uci.substring(0,2); 
+        const to = uci.substring(2,4);
+        $(`#${bId} .square-55d63`).css('background-color', '');
+        $(`#${bId} .square-${from}`).css('background-color', 'rgba(231,76,60,0.4)');
+        $(`#${bId} .square-${to}`).css('background-color', 'rgba(231,76,60,0.4)');
+      }
+
+      function evaluateStepBar(ply) {
+        const s = activeBoards[ply];
+        if (s.currentHistoryIndex === s.initialHistoryIndex) {
+          updateEvalBar(ply, s.scoreBefore, false);
+        } else if (s.currentHistoryIndex === s.initialHistoryIndex + 1) {
+          updateEvalBar(ply, s.scoreAfter, false);
+        } else {
+          updateEvalBar(ply, null, true);
+        }
+      }
+
+      $('.board').each(function() {
+        const bId = $(this).attr('id');
+        const ply = parseInt($(this).data('ply'), 10);
+        const moveUci = $(this).data('move');
+        const scoreBefore = $(this).data('scorebefore').toString();
+        const scoreAfter = $(this).data('scoreafter').toString();
+        
+        const targetChess = new Chess();
+        for (let i = 0; i < ply - 1; i++) { 
+          if (fullHistory[i]) targetChess.move(fullHistory[i]); 
+        }
+        
+        const board = Chessboard(bId, {
+          position: targetChess.fen(),
+          orientation: pColor,
+          pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        });
+        
+        activeBoards[ply] = { 
+          boardInstance: board, 
+          initialHistoryIndex: ply - 1, 
+          currentHistoryIndex: ply - 1, 
+          moveUci: moveUci, 
+          scoreBefore: scoreBefore, 
+          scoreAfter: scoreAfter 
+        };
+        
+        updateEvalBar(ply, scoreBefore, false);
+        highlightSquares(bId, moveUci);
+      });
+
+      // Small Board Navigation Controls
+      $('.prev-btn, .next-btn, .reset-btn').off('click').click(function() {
+        const ply = $(this).data('board'); 
+        const s = activeBoards[ply];
+        
+        if ($(this).hasClass('prev-btn') && s.currentHistoryIndex > 0) {
+          s.currentHistoryIndex--;
+        } else if ($(this).hasClass('next-btn') && s.currentHistoryIndex < fullHistory.length) {
+          s.currentHistoryIndex++;
+        } else if ($(this).hasClass('reset-btn')) {
+          s.currentHistoryIndex = s.initialHistoryIndex;
+        }
+        
+        const tempChess = new Chess();
+        for (let i = 0; i < s.currentHistoryIndex; i++) {
+          tempChess.move(fullHistory[i]);
+        }
+        
+        s.boardInstance.position(tempChess.fen());
+        $(`#board_${ply} .square-55d63`).css('background-color', ''); 
+        
+        if (s.currentHistoryIndex === s.initialHistoryIndex) {
+          highlightSquares(`board_${ply}`, s.moveUci);
+        }
+        evaluateStepBar(ply);
+      });
+    }
+
+    // Helper: generate HTML code for blunder/brilliant cards
+    function generateMomentHtml(moment, aiAnalyses, type, itemIndex) {
+      const currentPly = moment.ply;
+      let aiMatch = aiAnalyses.find(a => a && parseInt(a.ply, 10) === parseInt(currentPly, 10));
+      let analysisText = "";
+
+      if (aiMatch) {
+        analysisText = aiMatch.analysis || aiMatch;
+      } else if (aiAnalyses[itemIndex]) {
+        const fallbackItem = aiAnalyses[itemIndex];
+        analysisText = fallbackItem.analysis || fallbackItem;
+      } else {
+        if (type === 'critical') {
+          analysisText = `Bij <strong>Zet ${moment.moveNumber} (${moment.move})</strong> liep de stelling plotseling terug van een evaluatie van ${moment.scoreBefore} naar ${moment.scoreAfter}.`;
+        } else {
+          analysisText = `<strong>Zet ${moment.moveNumber} (${moment.move})</strong> was een uitstekende beslissing!`;
+        }
+      }
+
+      if (typeof analysisText === 'object') { 
+        analysisText = analysisText.analysis || "Geen schriftelijke analyse beschikbaar."; 
+      }
+      
+      analysisText = analysisText.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+
+      const cardClass = type === 'brilliant' ? 'moment-card brilliant' : 'moment-card';
+      const headerIcon = type === 'brilliant' ? '<i class="fa-solid fa-star" style="color: #f1c40f;"></i> ' : '';
+
+      return `
+        <div class="${cardClass}">
+          <div class="moment-header">${headerIcon}Zet ${moment.moveNumber} (${moment.move}) - ${moment.judgment}</div>
+          <div class="eval-tag">Score voor: ${moment.scoreBefore} | Score na: ${moment.scoreAfter}</div>
+          <p>${analysisText}</p>
+          <div class="board-wrapper">
+            <div id="eval_container_${currentPly}" class="eval-bar-container">
+              <div id="eval_bar_${currentPly}" class="eval-bar-fill"></div>
+            </div>
+            <div class="board-container">
+              <div id="board_${currentPly}" class="board" data-ply="${currentPly}" data-move="${moment.move_uci}" data-scorebefore="${moment.scoreBefore}" data-scoreafter="${moment.scoreAfter}"></div>
+            </div>
+          </div>
+          <div class="btn-container">
+            <button class="nav-btn prev-btn" data-board="${currentPly}">◀ Vorige</button>
+            <button class="nav-btn reset-btn" data-board="${currentPly}">Kritiek Moment</button>
+            <button class="nav-btn next-btn" data-board="${currentPly}">Volgende ▶</button>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
