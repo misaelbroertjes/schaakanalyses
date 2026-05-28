@@ -598,6 +598,7 @@
       <p id="error-message" style="max-width: 500px; color: var(--text-muted); margin-bottom: 20px;">
         De opgevraagde partij kan niet worden geladen. Controleer of de URL klopt en of de partij al geanalyseerd is.
       </p>
+      <div id="error-details" style="display: none; text-align: left; background: #000; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.9em; width: 100%; max-width: 480px; border: 1px solid var(--border); margin-bottom: 20px; word-break: break-all; color: var(--danger); white-space: pre-wrap;"></div>
       <button id="error-back-btn" class="btn"><i class="fa-solid fa-house"></i> Terug naar Portal</button>
     </div>
 
@@ -696,7 +697,7 @@
         return true;
       } catch (err) {
         console.error('Supabase initialisatie fout:', err);
-        showError('Fout bij verbinden met database', 'Kon geen verbinding maken met Supabase. Controleer je config.js.');
+        showError('Fout bij verbinden met database', 'Kon geen verbinding maken met Supabase. Controleer je config.js.', err);
         return false;
       }
     }
@@ -742,7 +743,7 @@
       }
     }
 
-    function showError(title, message) {
+    function showError(title, message, err) {
       $('#loading-state').hide();
       $('#portal-dashboard').hide();
       $('#spa-game-view').hide();
@@ -750,6 +751,21 @@
       
       $('#error-title').text(title);
       $('#error-message').text(message);
+      
+      if (err) {
+        let detailsStr = '';
+        if (typeof err === 'object') {
+          detailsStr = `${err.name || 'Error'}: ${err.message || JSON.stringify(err)}`;
+          if (err.details) detailsStr += `\nDetails: ${err.details}`;
+          if (err.hint) detailsStr += `\nHint: ${err.hint}`;
+        } else {
+          detailsStr = String(err);
+        }
+        $('#error-details').text(detailsStr).show();
+      } else {
+        $('#error-details').hide();
+      }
+      
       $('#error-state').show();
     }
 
@@ -815,7 +831,7 @@
 
       } catch (err) {
         console.error('Error fetching portal dashboard data:', err);
-        showError('Fout bij laden portal', 'Kon de recent geanalyseerde partijen niet ophalen uit de database.');
+        showError('Fout bij laden portal', 'Kon de recent geanalyseerde partijen niet ophalen uit de database.', err);
       }
     }
 
@@ -861,7 +877,7 @@
 
       } catch (err) {
         console.error('Error fetching game data:', err);
-        showError('Laadfout', 'Er is een fout opgetreden bij het ophalen van de partijgegevens.');
+        showError('Laadfout', 'Er is een fout opgetreden bij het ophalen van de partijgegevens.', err);
       }
     }
 
