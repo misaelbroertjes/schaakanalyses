@@ -1167,6 +1167,12 @@
         fillEl.css('height', percentage + '%');
       }
 
+      function highlightPuzzleSuccess(bId, from, to) {
+        $('#' + bId + ' .square-55d63').css('background-color', '');
+        $('#' + bId + ' .square-' + from).css('background-color', 'rgba(16, 185, 129, 0.4)');
+        $('#' + bId + ' .square-' + to).css('background-color', 'rgba(16, 185, 129, 0.4)');
+      }
+
       function highlightSquares(bId, uci) {
         if (!uci || uci.length < 4) return;
         const from = uci.substring(0,2); 
@@ -1202,6 +1208,48 @@
         const board = Chessboard(bId, {
           position: targetChess.fen(),
           orientation: pColor,
+          draggable: true,
+          onDragStart: function(source, piece, position, orientation) {
+            const state = activeBoards[ply];
+            if (!state || !state.practiceMode || state.puzzleSolved) return false;
+            const pieceColor = piece.search(/^b/) !== -1 ? 'black' : 'white';
+            if (pieceColor !== pColor) return false;
+          },
+          onDrop: function(source, target) {
+            const state = activeBoards[ply];
+            const tempChess = new Chess(state.practiceFen);
+            
+            const move = tempChess.move({
+              from: source,
+              to: target,
+              promotion: 'q'
+            });
+            
+            if (move === null) return 'snapback';
+            
+            const playedSan = move.san;
+            const targetSan = state.bestMoveSan;
+            
+            // Clean Pluses and check equivalency (SAN or UCI)
+            if (playedSan === targetSan || 
+                (move.from + move.to) === targetSan || 
+                playedSan.replace('+', '') === targetSan.replace('+', '')) {
+              state.puzzleSolved = true;
+              state.currentHistoryIndex = state.initialHistoryIndex + 1; // Sync history index
+              state.practiceFen = tempChess.fen(); // Save solved position
+              $(`#card_${ply}`).css('border-left-color', 'var(--success)');
+              $(`#card_message_${ply}`).html(`<span style="color:var(--success); font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Uitstekend! Dit is de juiste zet (${playedSan})!</span>`);
+              
+              // Highlight squares green
+              highlightPuzzleSuccess(bId, source, target);
+            } else {
+              $(`#card_message_${ply}`).html(`<span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-circle-xmark"></i> Niet helemaal correct (${playedSan}). Probeer het nog eens!</span>`);
+              setTimeout(() => {
+                board.position(state.practiceFen);
+              }, 1000);
+              return 'snapback';
+            }
+          },
           pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
         });
         
@@ -1219,6 +1267,48 @@
       });
 
       // Small Board Navigation Controls
+      // Practice Button click handler
+      $('.practice-btn').off('click').click(function() {
+        const ply = $(this).data('board');
+        const bestMove = $(this).data('best');
+        const s = activeBoards[ply];
+        
+        if (s.practiceMode) {
+          s.practiceMode = false;
+          $(this).html('🎯 Oefen stand').css('background-color', 'rgba(245,158,11,0.15)');
+          $('#card_message_' + ply).hide();
+          $('#card_' + ply).css('border-left-color', '');
+          
+          // Restore initial board state
+          const targetChess = new Chess();
+          for (let i = 0; i < ply - 1; i++) { if (fullHistory[i]) targetChess.move(fullHistory[i]); }
+          s.boardInstance.position(targetChess.fen());
+          s.currentHistoryIndex = s.initialHistoryIndex;
+          highlightSquares('board_' + ply, s.moveUci);
+          
+          // Enable normal nav buttons
+          $('#card_' + ply + ' .prev-btn, #card_' + ply + ' .next-btn, #card_' + ply + ' .reset-btn').prop('disabled', false);
+        } else {
+          s.practiceMode = true;
+          s.puzzleSolved = false;
+          
+          // Reset to exactly the position before the blunder
+          const targetChess = new Chess();
+          for (let i = 0; i < ply - 1; i++) { if (fullHistory[i]) targetChess.move(fullHistory[i]); }
+          s.practiceFen = targetChess.fen();
+          s.bestMoveSan = bestMove;
+          s.boardInstance.position(s.practiceFen);
+          s.currentHistoryIndex = s.initialHistoryIndex;
+          
+          $(this).html('❌ Stop Oefenen').css('background-color', 'rgba(239,68,68,0.15)');
+          $('#card_message_' + ply).html('<strong>Vind de beste zet voor ' + (pColor === 'white' ? 'Wit' : 'Zwart') + '...</strong>').show();
+          $('#board_' + ply + ' .square-55d63').css('background-color', ''); // Clear blunder highlights
+          
+          // Disable normal nav buttons
+          $('#card_' + ply + ' .prev-btn, #card_' + ply + ' .next-btn, #card_' + ply + ' .reset-btn').prop('disabled', true);
+        }
+      });
+
       $('.prev-btn, .next-btn, .reset-btn').off('click').click(function() {
         const ply = $(this).data('board'); 
         const s = activeBoards[ply];
@@ -1275,10 +1365,11 @@
       const headerIcon = type === 'brilliant' ? '<i class="fa-solid fa-star" style="color: #f1c40f;"></i> ' : '';
 
       return `
-        <div class="${cardClass}">
+        <div class="${cardClass}" id="card_${currentPly}">
           <div class="moment-header">${headerIcon}Zet ${moment.moveNumber} (${moment.move}) - ${moment.judgment}</div>
           <div class="eval-tag">Score voor: ${moment.scoreBefore} | Score na: ${moment.scoreAfter}</div>
           <p>${analysisText}</p>
+          <div id="card_message_${currentPly}" style="display: none; padding: 10px 15px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.95em;"></div>
           <div class="board-wrapper">
             <div id="eval_container_${currentPly}" class="eval-bar-container">
               <div id="eval_bar_${currentPly}" class="eval-bar-fill"></div>
@@ -1291,6 +1382,7 @@
             <button class="nav-btn prev-btn" data-board="${currentPly}">◀ Vorige</button>
             <button class="nav-btn reset-btn" data-board="${currentPly}">Kritiek Moment</button>
             <button class="nav-btn next-btn" data-board="${currentPly}">Volgende ▶</button>
+            ${aiMatch && aiMatch.best_move_san ? `<button class="nav-btn practice-btn" style="background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
           </div>
         </div>
       `;
