@@ -769,13 +769,23 @@
       $('#error-state').show();
     }
 
+    // Helper: get winner color from PGN
+    function getWinnerFromPgn(pgn) {
+      if (!pgn) return 'Remise';
+      const resultMatch = pgn.match(/\[Result\s*["']([^"']+)["']/);
+      if (!resultMatch) return 'Remise';
+      const result = resultMatch[1];
+      if (result === '1/2-1/2') return 'Remise';
+      return (result === '1-0') ? 'white' : 'black';
+    }
+
     // Portal Dashboard: fetch and display recent games
     async function loadPortalDashboard() {
       try {
         // Query last 12 analyzed games
         const { data, error } = await supabaseClient
           .from('chess_games')
-          .select('game_url, played_at, opening, winner, player_color, analysis_status')
+          .select('game_url, played_at, player_color, analysis_status, pgn, coach_feedback')
           .eq('analysis_status', 'analyzed')
           .order('played_at', { ascending: false })
           .limit(12);
@@ -797,13 +807,33 @@
           const gameUrlId = game.game_url.split('/').pop();
           const playedDate = game.played_at ? new Date(game.played_at).toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Onbekend';
           
+          // Determine opening and winner dynamically (since opening and winner columns do not exist)
+          let opening = 'Onbekende opening';
+          let winner = 'Remise';
+          const feedbackRaw = game.coach_feedback || '';
+          
+          if (feedbackRaw.trim().startsWith('<!DOCTYPE') || feedbackRaw.trim().startsWith('<html')) {
+            const openingMatch = feedbackRaw.match(/Opening:\s*([^|]+)/);
+            opening = openingMatch ? openingMatch[1].trim() : 'Onbekende opening';
+            winner = getWinnerFromPgn(game.pgn);
+          } else {
+            try {
+              const parsed = typeof feedbackRaw === 'object' ? feedbackRaw : JSON.parse(feedbackRaw);
+              opening = parsed.opening || 'Onbekende opening';
+              winner = parsed.winner || 'Remise';
+            } catch (e) {
+              console.warn('Kon JSON niet parsen voor overzicht:', e);
+              winner = getWinnerFromPgn(game.pgn);
+            }
+          }
+          
           let cardClass = 'game-card';
           let resultIcon = '<i class="fa-solid fa-minus"></i> Remise';
           
-          if (game.winner === 'Remise') {
+          if (winner === 'Remise') {
             cardClass += ' draw';
-          } else if (game.winner && game.player_color) {
-            const isWinner = game.winner.toLowerCase() === game.player_color.toLowerCase();
+          } else if (winner && game.player_color) {
+            const isWinner = winner.toLowerCase() === game.player_color.toLowerCase();
             cardClass += isWinner ? ' win' : ' loss';
             resultIcon = isWinner ? 
               '<i class="fa-solid fa-trophy" style="color:#10b981;"></i> Gewonnen' : 
@@ -813,7 +843,7 @@
           const card = `
             <div class="${cardClass}">
               <div class="card-header">
-                <span class="opening-badge" title="${game.opening || 'Onbekende opening'}">${game.opening || 'Onbekende opening'}</span>
+                <span class="opening-badge" title="${opening}">${opening}</span>
                 <span class="date-badge">${playedDate}</span>
               </div>
               <div class="card-body">
