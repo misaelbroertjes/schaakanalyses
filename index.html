@@ -558,8 +558,124 @@
     }
     
     @media (max-width: 900px) {
+      /* General portal layout adjustments */
+      .portal-container {
+        padding: 20px 12px;
+      }
+      
+      header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+      }
+      
+      h1 {
+        font-size: 1.6em;
+        justify-content: center;
+      }
+      
+      .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+      }
+      
+      .analysis-container {
+        padding: 16px 12px;
+        border-radius: 12px;
+      }
+      
+      /* Replayer center responsiveness */
       .replay-center {
         grid-template-columns: 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+      }
+      
+      .board-section {
+        padding: 12px 8px;
+      }
+      
+      .board-row {
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      
+      .main-board {
+        width: 100%;
+        max-width: 380px;
+      }
+      
+      .main-eval-bar {
+        width: 16px;
+      }
+      
+      .control-panel {
+        height: 320px;
+        padding: 12px;
+      }
+      
+      /* Coach sections responsiveness */
+      h2 {
+        font-size: 1.4em;
+        margin-top: 25px;
+        margin-bottom: 12px;
+      }
+      
+      .coach-box, .opening-box, .homework {
+        padding: 15px;
+        font-size: 1em;
+        margin: 15px 0;
+      }
+      
+      .moment-card {
+        padding: 15px 12px;
+        margin: 15px 0;
+      }
+      
+      .moment-header {
+        font-size: 1.1em;
+      }
+      
+      /* Responsive small board container */
+      .board-container {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+      
+      .board {
+        width: 100% !important;
+      }
+      
+      .btn-container {
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      
+      .nav-btn {
+        padding: 6px 12px;
+        font-size: 0.85em;
+        flex-grow: 1;
+        text-align: center;
+      }
+      
+      .practice-btn {
+        width: 100%;
+      }
+    }
+    
+    /* Extra styling for very small mobile screens */
+    @media (max-width: 400px) {
+      .main-eval-bar {
+        width: 12px;
+      }
+      
+      .board-row {
+        gap: 6px;
       }
     }
   </style>
@@ -984,6 +1100,19 @@
         pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
       });
       
+      // Prevent page scroll when interacting with the main chessboard
+      const mainBoardEl = document.getElementById('main_board');
+      if (mainBoardEl) {
+        mainBoardEl.addEventListener('touchmove', function(e) {
+          if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+      }
+
+      // Auto resize main board on window resize
+      $(window).off('resize.mainBoard').on('resize.mainBoard', function() {
+        if (mainBoard) mainBoard.resize();
+      });
+      
       // Render Move List
       let moveListHtml = '';
       for (let i = 0; i < fullHistory.length; i += 2) {
@@ -1258,18 +1387,26 @@
         });
         
         activeBoards[ply] = { boardInstance: board, initialHistoryIndex: ply - 1, currentHistoryIndex: ply - 1, moveUci: moveUci, scoreBefore: scoreBefore, scoreAfter: scoreAfter };
-      
-      // Bind pointerdown capture phase listener for click-to-move
-      this.addEventListener('pointerdown', function(e) {
-        const squareEl = e.target.closest('.square-55d63');
-        if (!squareEl) return;
-        const square = $(squareEl).data('square');
-        handleSquareClick(ply, bId, square);
-      }, true);
-      
-      updateEvalBar(ply, scoreBefore, false);
-      highlightSquares(bId, moveUci);
-    });
+        
+        // Prevent page scroll when interacting with the small chessboard
+        this.addEventListener('touchmove', function(e) {
+          if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+
+        // Bind pointerdown capture phase listener for click-to-move
+        this.addEventListener('pointerdown', function(e) {
+          const squareEl = e.target.closest('.square-55d63');
+          if (!squareEl) return;
+          const square = squareEl.getAttribute('data-square') || 
+                         squareEl.className.split(' ').find(c => c.startsWith('square-') && c !== 'square-55d63')?.replace('square-', '');
+          if (square) {
+            handleSquareClick(ply, bId, square);
+          }
+        }, true);
+        
+        updateEvalBar(ply, scoreBefore, false);
+        highlightSquares(bId, moveUci);
+      });
 
       // Small Board Navigation Controls
             // Click-to-move (Tap-to-move) helper function using capture phase events
@@ -1405,6 +1542,13 @@
           highlightSquares(`board_${ply}`, s.moveUci);
         }
         evaluateStepBar(ply);
+      });
+
+      // Auto resize small boards on window resize
+      $(window).off('resize.smallBoards').on('resize.smallBoards', function() {
+        Object.values(activeBoards).forEach(s => {
+          if (s && s.boardInstance) s.boardInstance.resize();
+        });
       });
     }
 
