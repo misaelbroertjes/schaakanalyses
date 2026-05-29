@@ -678,6 +678,34 @@
         gap: 6px;
       }
     }
+    
+    .board-container {
+      position: relative;
+    }
+    
+    .board-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 14, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .board-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
   </style>
 </head>
 <body>
@@ -1581,6 +1609,7 @@
           }
           $(this).html('🎯 Oefen stand').css('background-color', 'rgba(245,158,11,0.15)');
           $('#card_message_' + ply).hide();
+          $('#board_overlay_' + ply).removeClass('active'); // Hide overlay if it was active
           $('#card_' + ply).css('border-left-color', '');
           
           // Restore initial board state
@@ -1605,7 +1634,8 @@
           s.currentHistoryIndex = s.initialHistoryIndex;
           
           $(this).html('<i class="fa-solid fa-spinner fa-spin"></i> Denkt...').css('background-color', 'rgba(245,158,11,0.08)');
-          $('#card_message_' + ply).html('<span style="color: var(--warning);"><i class="fa-solid fa-hourglass-half"></i> De schaakcomputer berekent de beste zet (2s)...</span>').show();
+          $('#card_message_' + ply).hide(); // Don't show text box during calculation to avoid layout shift
+          $('#board_overlay_' + ply).addClass('active'); // Show overlay thinking spinner on the board
           $('#board_' + ply + ' .square-55d63').css('background-color', ''); // Clear blunder highlights
           
           // Disable normal nav buttons
@@ -1631,6 +1661,7 @@
             
             if (s.practiceMode) { // Check if user didn't stop in the meantime
               btn.html('❌ Stop Oefenen').css('background-color', 'rgba(239,68,68,0.15)');
+              $('#board_overlay_' + ply).removeClass('active'); // Hide board overlay spinner
               $('#card_message_' + ply).html(`
                 <strong>Vind de beste zet voor ${pColor === 'white' ? 'Wit' : 'Zwart'}...</strong> 
                 <button class="nav-btn show-answer-btn" data-board="${ply}" style="padding: 4px 8px; font-size: 0.85em; background-color: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: #fca5a5; cursor: pointer; border-radius: 4px; border: 1px solid var(--danger); transition: 0.2s;">Laat antwoord zien</button>
@@ -1731,25 +1762,28 @@
           <div class="moment-header">${headerIcon}Zet ${moment.moveNumber} (${moment.move}) - ${moment.judgment}</div>
           <div class="eval-tag">Score voor: ${moment.scoreBefore} | Score na: ${moment.scoreAfter}</div>
           
-          <!-- Collapsible Coach Analysis -->
-          <button class="nav-btn toggle-analysis-btn" id="toggle_analysis_${currentPly}" data-board="${currentPly}" style="margin-bottom: 15px; padding: 6px 12px; font-size: 0.9em; background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: var(--secondary); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i class="fa-solid fa-eye"></i> Toon AI Coach Analyse</button>
-          <div class="ai-analysis-text" id="analysis_text_${currentPly}" style="display: none; margin-bottom: 15px; border-left: 2px solid rgba(255,255,255,0.15); padding-left: 12px; color: var(--text-muted); font-size: 0.95em;">
-            <p>${analysisText}</p>
-          </div>
-
           ${warningHtml}
-          <div id="card_message_${currentPly}" style="display: none; padding: 10px 15px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.95em; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;"></div>
           
+          <!-- Board Section (Fixed position) -->
           <div class="board-wrapper">
             <div id="eval_container_${currentPly}" class="eval-bar-container">
               <div id="eval_bar_${currentPly}" class="eval-bar-fill"></div>
             </div>
             <div class="board-container">
               <div id="board_${currentPly}" class="board" data-ply="${currentPly}" data-move="${moment.move_uci}" data-scorebefore="${moment.scoreBefore}" data-scoreafter="${moment.scoreAfter}"></div>
+              
+              <!-- Engine Thinking Overlay -->
+              <div id="board_overlay_${currentPly}" class="board-overlay">
+                <div class="spinner" style="width: 36px; height: 36px; border-width: 3px; margin-bottom: 10px;"></div>
+                <span style="font-weight: 600; font-size: 0.95em; color: var(--text-main);"><i class="fa-solid fa-microchip" style="margin-right: 5px; color: var(--warning);"></i> Engine berekent...</span>
+              </div>
             </div>
           </div>
+
+          <!-- Message Box (Below the board) -->
+          <div id="card_message_${currentPly}" style="display: none; padding: 10px 15px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); margin-top: 15px; font-size: 0.95em; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;"></div>
           
-          <!-- Re-ordered buttons -->
+          <!-- Action & Navigation Buttons -->
           <div class="btn-container-vertical" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
             <div class="btn-row-action" style="display: flex; gap: 10px; width: 100%;">
               <button class="nav-btn reset-btn" style="flex-grow: 1; justify-content: center;" data-board="${currentPly}">Kritiek Moment</button>
@@ -1759,6 +1793,12 @@
               <button class="nav-btn prev-btn" style="flex-grow: 1; justify-content: center;" data-board="${currentPly}">◀ Vorige</button>
               <button class="nav-btn next-btn" style="flex-grow: 1; justify-content: center;" data-board="${currentPly}">Volgende ▶</button>
             </div>
+          </div>
+
+          <!-- Collapsible Coach Analysis (At the bottom) -->
+          <button class="nav-btn toggle-analysis-btn" id="toggle_analysis_${currentPly}" data-board="${currentPly}" style="margin-top: 15px; padding: 8px 12px; font-size: 0.9em; background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: var(--secondary); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; width: 100%; justify-content: center;"><i class="fa-solid fa-eye"></i> Toon AI Coach Analyse</button>
+          <div class="ai-analysis-text" id="analysis_text_${currentPly}" style="display: none; margin-top: 15px; border-left: 2px solid rgba(255,255,255,0.15); padding-left: 12px; color: var(--text-muted); font-size: 0.95em;">
+            <p>${analysisText}</p>
           </div>
         </div>
       `;
