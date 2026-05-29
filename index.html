@@ -965,10 +965,10 @@
     // Portal Dashboard: fetch and display recent games
     async function loadPortalDashboard() {
       try {
-        // Query last 12 analyzed games
+        // Query last 12 analyzed games (excluding non-existent opening/winner columns)
         const { data, error } = await supabaseClient
           .from('chess_games')
-          .select('game_url, played_at, player_color, analysis_status, pgn, coach_feedback, opening, winner')
+          .select('game_url, played_at, player_color, analysis_status, pgn, coach_feedback')
           .eq('analysis_status', 'analyzed')
           .order('played_at', { ascending: false })
           .limit(12);
@@ -1007,8 +1007,8 @@
             }
           }
           
-          const opening = determineOpening(game.opening || parsedOpening, game.pgn);
-          const winner = determineWinner(game.winner || parsedWinner, game.pgn);
+          const opening = determineOpening(parsedOpening, game.pgn);
+          const winner = determineWinner(parsedWinner, game.pgn);
           
           let cardClass = 'game-card';
           let resultIcon = '<i class="fa-solid fa-minus"></i> Remise';
