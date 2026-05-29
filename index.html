@@ -1241,6 +1241,37 @@
       goToMove(-1);
     }
 
+    // Stockfish Web Worker wrapper
+    let stockfishWorker = null;
+
+    function getStockfishBestMove(fen, callback) {
+      try {
+        if (stockfishWorker) {
+          stockfishWorker.terminate(); // Stop previous calculations
+        }
+        
+        const workerCode = `importScripts('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js');`;
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const blobUrl = URL.createObjectURL(blob);
+        stockfishWorker = new Worker(blobUrl);
+
+        stockfishWorker.onmessage = function(event) {
+          const line = event.data;
+          if (line.startsWith('bestmove')) {
+            const parts = line.split(' ');
+            const uciMove = parts[1];
+            callback(uciMove);
+          }
+        };
+
+        stockfishWorker.postMessage('position fen ' + fen);
+        stockfishWorker.postMessage('go movetime 2000'); // 2 seconds search
+      } catch (e) {
+        console.error('Fout bij starten Stockfish:', e);
+        callback(null);
+      }
+    }
+
     // Build the Blunder / Brilliant cards with interactive small boards
     function renderCriticalMoments(gameData, feedback) {
       const pColor = (gameData.player_color || 'white').toLowerCase() === 'black' ? 'black' : 'white';
@@ -1344,7 +1375,7 @@
           draggable: true,
           onDragStart: function(source, piece, position, orientation) {
             const state = activeBoards[ply];
-            if (!state || !state.practiceMode || state.puzzleSolved) return false;
+            if (!state || !state.practiceMode || state.puzzleSolved || state.engineCalculating) return false;
             const pieceColor = piece.search(/^b/) !== -1 ? 'black' : 'white';
             if (pieceColor !== pColor) return false;
           },
@@ -1361,12 +1392,11 @@
             if (move === null) return 'snapback';
             
             const playedSan = move.san;
-            const targetSan = state.bestMoveSan;
+            const playedUci = source + target;
+            const targetUci = state.engineBestMoveUci;
             
-            // Clean Pluses and check equivalency (SAN or UCI)
-            if (playedSan === targetSan || 
-                (move.from + move.to) === targetSan || 
-                playedSan.replace('+', '') === targetSan.replace('+', '')) {
+            // Validate played move against Stockfish's UCI move
+            if (playedUci === targetUci || playedUci + 'q' === targetUci || playedUci === targetUci + 'q') {
               state.puzzleSolved = true;
               state.currentHistoryIndex = state.initialHistoryIndex + 1; // Sync history index
               state.practiceFen = tempChess.fen(); // Save solved position
@@ -1412,7 +1442,7 @@
             // Click-to-move (Tap-to-move) helper function using capture phase events
       function handleSquareClick(ply, bId, square) {
         const s = activeBoards[ply];
-        if (!s || !s.practiceMode || s.puzzleSolved) return;
+        if (!s || !s.practiceMode || s.puzzleSolved || s.engineCalculating) return;
         
         const tempChess = new Chess(s.practiceFen);
         const piece = tempChess.get(square);
@@ -1443,11 +1473,10 @@
             s.boardInstance.position(tempChess.fen());
             
             const playedSan = move.san;
-            const targetSan = s.bestMoveSan;
+            const playedUci = fromSquare + toSquare;
+            const targetUci = s.engineBestMoveUci;
             
-            if (playedSan === targetSan || 
-                (move.from + move.to) === targetSan || 
-                playedSan.replace('+', '') === targetSan.replace('+', '')) {
+            if (playedUci === targetUci || playedUci + 'q' === targetUci || playedUci === targetUci + 'q') {
               s.puzzleSolved = true;
               s.currentHistoryIndex = s.initialHistoryIndex + 1;
               s.practiceFen = tempChess.fen();
@@ -1484,6 +1513,9 @@
         if (s.practiceMode) {
           s.practiceMode = false;
           s.selectedSquare = null; // Clear selection
+          if (stockfishWorker) {
+            stockfishWorker.terminate(); // Stop calculation
+          }
           $(this).html('🎯 Oefen stand').css('background-color', 'rgba(245,158,11,0.15)');
           $('#card_message_' + ply).hide();
           $('#card_' + ply).css('border-left-color', '');
@@ -1500,21 +1532,33 @@
         } else {
           s.practiceMode = true;
           s.puzzleSolved = false;
+          s.engineCalculating = true;
           
           // Reset to exactly the position before the blunder
           const targetChess = new Chess();
           for (let i = 0; i < ply - 1; i++) { if (fullHistory[i]) targetChess.move(fullHistory[i]); }
           s.practiceFen = targetChess.fen();
-          s.bestMoveSan = bestMove;
           s.boardInstance.position(s.practiceFen);
           s.currentHistoryIndex = s.initialHistoryIndex;
           
-          $(this).html('❌ Stop Oefenen').css('background-color', 'rgba(239,68,68,0.15)');
-          $('#card_message_' + ply).html('<strong>Vind de beste zet voor ' + (pColor === 'white' ? 'Wit' : 'Zwart') + '...</strong>').show();
+          $(this).html('<i class="fa-solid fa-spinner fa-spin"></i> Denkt...').css('background-color', 'rgba(245,158,11,0.08)');
+          $('#card_message_' + ply).html('<span style="color: var(--warning);"><i class="fa-solid fa-hourglass-half"></i> De schaakcomputer berekent de beste zet (2s)...</span>').show();
           $('#board_' + ply + ' .square-55d63').css('background-color', ''); // Clear blunder highlights
           
           // Disable normal nav buttons
           $('#card_' + ply + ' .prev-btn, #card_' + ply + ' .next-btn, #card_' + ply + ' .reset-btn').prop('disabled', true);
+          
+          const btn = $(this);
+          
+          getStockfishBestMove(s.practiceFen, function(bestUci) {
+            s.engineBestMoveUci = bestUci;
+            s.engineCalculating = false;
+            
+            if (s.practiceMode) { // Check if user didn't stop in the meantime
+              btn.html('❌ Stop Oefenen').css('background-color', 'rgba(239,68,68,0.15)');
+              $('#card_message_' + ply).html('<strong>Vind de beste zet voor ' + (pColor === 'white' ? 'Wit' : 'Zwart') + '...</strong>');
+            }
+          });
         }
       });
 
@@ -1594,9 +1638,9 @@
       let warningHtml = "";
       if (aiMatch && aiMatch.best_move_san && !isBestMoveValid) {
         warningHtml = `
-          <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 10px 15px; border-radius: 8px; font-size: 0.9em; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-triangle-exclamation" style="color: #fca5a5;"></i>
-            <span>Oefenstand niet beschikbaar: de AI-coach stelde een ongeldige zet voor (<strong>${aiMatch.best_move_san}</strong>).</span>
+          <div style="background-color: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); color: #fcd34d; padding: 10px 15px; border-radius: 8px; font-size: 0.9em; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-circle-info" style="color: #fcd34d;"></i>
+            <span>Opmerking: De AI stelde een onmogelijke zet voor (${aiMatch.best_move_san}). De schaakcomputer corrigeert dit lokaal!</span>
           </div>
         `;
       }
@@ -1623,7 +1667,7 @@
             <button class="nav-btn prev-btn" data-board="${currentPly}">◀ Vorige</button>
             <button class="nav-btn reset-btn" data-board="${currentPly}">Kritiek Moment</button>
             <button class="nav-btn next-btn" data-board="${currentPly}">Volgende ▶</button>
-            ${isBestMoveValid ? `<button class="nav-btn practice-btn" style="background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
+            ${aiMatch && aiMatch.best_move_san ? `<button class="nav-btn practice-btn" style="background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
           </div>
         </div>
       `;
