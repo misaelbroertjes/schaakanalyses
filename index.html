@@ -1315,6 +1315,54 @@
       
       // Initialize the small chessboards for each moment
       const activeBoards = {};
+
+      // Toggle analysis visibility
+      $(document).off('click', '.toggle-analysis-btn').on('click', '.toggle-analysis-btn', function() {
+        const ply = $(this).data('board');
+        const container = $(`#analysis_text_${ply}`);
+        if (container.is(':visible')) {
+          container.slideUp();
+          $(this).html('<i class="fa-solid fa-eye"></i> Toon AI Coach Analyse');
+        } else {
+          container.slideDown();
+          $(this).html('<i class="fa-solid fa-eye-slash"></i> Verberg AI Coach Analyse');
+        }
+      });
+
+      // Show answer (reveal puzzle)
+      $(document).off('click', '.show-answer-btn').on('click', '.show-answer-btn', function() {
+        const ply = $(this).data('board');
+        const s = activeBoards[ply];
+        if (!s || !s.practiceMode || s.puzzleSolved) return;
+
+        const bestUci = s.engineBestMoveUci;
+        const bestSan = s.engineBestMoveSan || bestUci;
+        
+        if (!bestUci) return;
+        
+        // Reconstruct position and make the move
+        const tempChess = new Chess(s.practiceFen);
+        const from = bestUci.substring(0, 2);
+        const to = bestUci.substring(2, 4);
+        const promotion = bestUci.length > 4 ? bestUci.substring(4, 5) : undefined;
+        
+        tempChess.move({ from, to, promotion });
+        
+        s.puzzleSolved = true;
+        s.currentHistoryIndex = s.initialHistoryIndex + 1;
+        s.practiceFen = tempChess.fen();
+        
+        s.boardInstance.position(s.practiceFen);
+        
+        $(`#card_${ply}`).css('border-left-color', 'var(--success)');
+        $(`#card_message_${ply}`).html(`<span style="color:var(--success); font-weight:bold;"><i class="fa-solid fa-circle-info"></i> De juiste zet was: <strong>${bestSan}</strong>.</span>`);
+        
+        highlightPuzzleSuccess('board_' + ply, from, to);
+        
+        // Auto reveal the AI analysis text
+        $(`#analysis_text_${ply}`).slideDown();
+        $(`#toggle_analysis_${ply}`).html('<i class="fa-solid fa-eye-slash"></i> Verberg AI Coach Analyse');
+      });
       
       function updateEvalBar(ply, scoreText, forceInactive) {
         const containerEl = $(`#eval_container_${ply}`);
@@ -1403,10 +1451,17 @@
               $(`#card_${ply}`).css('border-left-color', 'var(--success)');
               $(`#card_message_${ply}`).html(`<span style="color:var(--success); font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Uitstekend! Dit is de juiste zet (${playedSan})!</span>`);
               
+              // Auto reveal the AI analysis text
+              $(`#analysis_text_${ply}`).slideDown();
+              $(`#toggle_analysis_${ply}`).html('<i class="fa-solid fa-eye-slash"></i> Verberg AI Coach Analyse');
+              
               // Highlight squares green
               highlightPuzzleSuccess(bId, source, target);
             } else {
-              $(`#card_message_${ply}`).html(`<span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-circle-xmark"></i> Niet helemaal correct (${playedSan}). Probeer het nog eens!</span>`);
+              $(`#card_message_${ply}`).html(`
+                <span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-circle-xmark"></i> Niet helemaal correct (${playedSan}). Probeer het nog eens!</span>
+                <button class="nav-btn show-answer-btn" data-board="${ply}" style="padding: 4px 8px; font-size: 0.85em; background-color: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: #fca5a5; cursor: pointer; border-radius: 4px; border: 1px solid var(--danger); transition: 0.2s; margin-left: 10px;">Laat antwoord zien</button>
+              `).css('display', 'flex');
               setTimeout(() => {
                 board.position(state.practiceFen);
               }, 1000);
@@ -1482,9 +1537,17 @@
               s.practiceFen = tempChess.fen();
               $('#card_' + ply).css('border-left-color', 'var(--success)');
               $('#card_message_' + ply).html('<span style="color:var(--success); font-weight:bold;"><i class="fa-solid fa-circle-check"></i> Uitstekend! Dit is de juiste zet (' + playedSan + ')!</span>');
+              
+              // Auto reveal the AI analysis text
+              $(`#analysis_text_${ply}`).slideDown();
+              $(`#toggle_analysis_${ply}`).html('<i class="fa-solid fa-eye-slash"></i> Verberg AI Coach Analyse');
+              
               highlightPuzzleSuccess(bId, fromSquare, toSquare);
             } else {
-              $('#card_message_' + ply).html('<span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-circle-xmark"></i> Niet helemaal correct (' + playedSan + '). Probeer het nog eens!</span>');
+              $('#card_message_' + ply).html(`
+                <span style="color:var(--danger); font-weight:bold;"><i class="fa-solid fa-circle-xmark"></i> Niet helemaal correct (${playedSan}). Probeer het nog eens!</span>
+                <button class="nav-btn show-answer-btn" data-board="${ply}" style="padding: 4px 8px; font-size: 0.85em; background-color: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: #fca5a5; cursor: pointer; border-radius: 4px; border: 1px solid var(--danger); transition: 0.2s; margin-left: 10px;">Laat antwoord zien</button>
+              `).css('display', 'flex');
               setTimeout(() => {
                 s.boardInstance.position(s.practiceFen);
               }, 1000);
@@ -1554,9 +1617,24 @@
             s.engineBestMoveUci = bestUci;
             s.engineCalculating = false;
             
+            // Calculate SAN representation for best move
+            try {
+              const testChess = new Chess(s.practiceFen);
+              const from = bestUci.substring(0, 2);
+              const to = bestUci.substring(2, 4);
+              const promotion = bestUci.length > 4 ? bestUci.substring(4, 5) : undefined;
+              const moveRes = testChess.move({ from, to, promotion });
+              s.engineBestMoveSan = moveRes ? moveRes.san : bestUci;
+            } catch (e) {
+              s.engineBestMoveSan = bestUci;
+            }
+            
             if (s.practiceMode) { // Check if user didn't stop in the meantime
               btn.html('❌ Stop Oefenen').css('background-color', 'rgba(239,68,68,0.15)');
-              $('#card_message_' + ply).html('<strong>Vind de beste zet voor ' + (pColor === 'white' ? 'Wit' : 'Zwart') + '...</strong>');
+              $('#card_message_' + ply).html(`
+                <strong>Vind de beste zet voor ${pColor === 'white' ? 'Wit' : 'Zwart'}...</strong> 
+                <button class="nav-btn show-answer-btn" data-board="${ply}" style="padding: 4px 8px; font-size: 0.85em; background-color: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: #fca5a5; cursor: pointer; border-radius: 4px; border: 1px solid var(--danger); transition: 0.2s;">Laat antwoord zien</button>
+              `).css('display', 'flex');
             }
           });
         }
@@ -1652,9 +1730,16 @@
         <div class="${cardClass}" id="card_${currentPly}">
           <div class="moment-header">${headerIcon}Zet ${moment.moveNumber} (${moment.move}) - ${moment.judgment}</div>
           <div class="eval-tag">Score voor: ${moment.scoreBefore} | Score na: ${moment.scoreAfter}</div>
-          <p>${analysisText}</p>
+          
+          <!-- Collapsible Coach Analysis -->
+          <button class="nav-btn toggle-analysis-btn" id="toggle_analysis_${currentPly}" data-board="${currentPly}" style="margin-bottom: 15px; padding: 6px 12px; font-size: 0.9em; background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: var(--secondary); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;"><i class="fa-solid fa-eye"></i> Toon AI Coach Analyse</button>
+          <div class="ai-analysis-text" id="analysis_text_${currentPly}" style="display: none; margin-bottom: 15px; border-left: 2px solid rgba(255,255,255,0.15); padding-left: 12px; color: var(--text-muted); font-size: 0.95em;">
+            <p>${analysisText}</p>
+          </div>
+
           ${warningHtml}
-          <div id="card_message_${currentPly}" style="display: none; padding: 10px 15px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.95em;"></div>
+          <div id="card_message_${currentPly}" style="display: none; padding: 10px 15px; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--border); margin-bottom: 15px; font-size: 0.95em; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;"></div>
+          
           <div class="board-wrapper">
             <div id="eval_container_${currentPly}" class="eval-bar-container">
               <div id="eval_bar_${currentPly}" class="eval-bar-fill"></div>
@@ -1663,11 +1748,17 @@
               <div id="board_${currentPly}" class="board" data-ply="${currentPly}" data-move="${moment.move_uci}" data-scorebefore="${moment.scoreBefore}" data-scoreafter="${moment.scoreAfter}"></div>
             </div>
           </div>
-          <div class="btn-container">
-            <button class="nav-btn prev-btn" data-board="${currentPly}">◀ Vorige</button>
-            <button class="nav-btn reset-btn" data-board="${currentPly}">Kritiek Moment</button>
-            <button class="nav-btn next-btn" data-board="${currentPly}">Volgende ▶</button>
-            ${aiMatch && aiMatch.best_move_san ? `<button class="nav-btn practice-btn" style="background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
+          
+          <!-- Re-ordered buttons -->
+          <div class="btn-container-vertical" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+            <div class="btn-row-action" style="display: flex; gap: 10px; width: 100%;">
+              <button class="nav-btn reset-btn" style="flex-grow: 1; justify-content: center;" data-board="${currentPly}">Kritiek Moment</button>
+              ${aiMatch && aiMatch.best_move_san ? `<button class="nav-btn practice-btn" style="flex-grow: 1; justify-content: center; background-color: rgba(245,158,11,0.15); border-color: var(--warning); color: #fcd34d;" data-board="${currentPly}" data-best="${aiMatch.best_move_san}">🎯 Oefen stand</button>` : ''}
+            </div>
+            <div class="btn-row-nav" style="display: flex; gap: 10px; width: 100%;">
+              <button class="nav-btn prev-btn" style="flex-grow: 1; justify-content: center;" data-board="${currentPly}">◀ Vorige</button>
+              <button class="nav-btn next-btn" style="flex-grow: 1; justify-content: center;" data-board="${currentPly}">Volgende ▶</button>
+            </div>
           </div>
         </div>
       `;
