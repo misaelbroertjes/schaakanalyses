@@ -927,13 +927,48 @@
       return (result === '1-0') ? 'white' : 'black';
     }
 
+    // Helper: get opening from PGN using Opening or ECOUrl headers
+    function getOpeningFromPgn(pgn) {
+      if (!pgn) return 'Onbekende opening';
+      
+      const openingMatch = pgn.match(/\[Opening\s*["']([^"']+)["']/);
+      if (openingMatch) return openingMatch[1];
+      
+      const ecoUrlMatch = pgn.match(/\[ECOUrl\s*["']https:\/\/www\.chess\.com\/openings\/([^"']+)["']/);
+      if (ecoUrlMatch) {
+        let rawName = ecoUrlMatch[1];
+        rawName = decodeURIComponent(rawName)
+          .replace(/-/g, ' ')
+          .replace(/_/g, ' ');
+        return rawName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      }
+      
+      return 'Onbekende opening';
+    }
+
+    // Helper: determine opening name (trusting database column, falling back to JSON then PGN)
+    function determineOpening(dbOpening, pgn) {
+      if (dbOpening && dbOpening !== 'Onbekend' && dbOpening !== 'Onbekende opening') {
+        return dbOpening;
+      }
+      return getOpeningFromPgn(pgn);
+    }
+
+    // Helper: determine winner (trusting database column, falling back to JSON then PGN Result)
+    function determineWinner(dbWinner, pgn) {
+      if (dbWinner && dbWinner !== 'Remise' && dbWinner !== 'Onbekend') {
+        return dbWinner.toLowerCase();
+      }
+      return getWinnerFromPgn(pgn);
+    }
+
     // Portal Dashboard: fetch and display recent games
     async function loadPortalDashboard() {
       try {
         // Query last 12 analyzed games
         const { data, error } = await supabaseClient
           .from('chess_games')
-          .select('game_url, played_at, player_color, analysis_status, pgn, coach_feedback')
+          .select('game_url, played_at, player_color, analysis_status, pgn, coach_feedback, opening, winner')
           .eq('analysis_status', 'analyzed')
           .order('played_at', { ascending: false })
           .limit(12);
@@ -955,25 +990,25 @@
           const gameUrlId = game.game_url.split('/').pop();
           const playedDate = game.played_at ? new Date(game.played_at).toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Onbekend';
           
-          // Determine opening and winner dynamically (since opening and winner columns do not exist)
-          let opening = 'Onbekende opening';
-          let winner = 'Remise';
+          let parsedOpening = 'Onbekend';
+          let parsedWinner = 'Remise';
           const feedbackRaw = game.coach_feedback || '';
           
           if (feedbackRaw.trim().startsWith('<!DOCTYPE') || feedbackRaw.trim().startsWith('<html')) {
             const openingMatch = feedbackRaw.match(/Opening:\s*([^|]+)/);
-            opening = openingMatch ? openingMatch[1].trim() : 'Onbekende opening';
-            winner = getWinnerFromPgn(game.pgn);
+            parsedOpening = openingMatch ? openingMatch[1].trim() : 'Onbekend';
           } else {
             try {
               const parsed = typeof feedbackRaw === 'object' ? feedbackRaw : JSON.parse(feedbackRaw);
-              opening = parsed.opening || 'Onbekende opening';
-              winner = parsed.winner || 'Remise';
+              parsedOpening = parsed.opening || 'Onbekend';
+              parsedWinner = parsed.winner || 'Remise';
             } catch (e) {
               console.warn('Kon JSON niet parsen voor overzicht:', e);
-              winner = getWinnerFromPgn(game.pgn);
             }
           }
+          
+          const opening = determineOpening(game.opening || parsedOpening, game.pgn);
+          const winner = determineWinner(game.winner || parsedWinner, game.pgn);
           
           let cardClass = 'game-card';
           let resultIcon = '<i class="fa-solid fa-minus"></i> Remise';
@@ -1079,7 +1114,8 @@
 
       // Set Metadata
       const playedDate = gameData.played_at ? new Date(gameData.played_at).toLocaleDateString('nl-NL', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Onbekend';
-      $('#game-meta-opening').text(gameData.opening || 'Onbekend');
+      const opening = determineOpening(gameData.opening || feedback.opening, gameData.pgn);
+      $('#game-meta-opening').text(opening);
       $('#game-meta-date').text(playedDate);
       $('#game-meta-chess-link').attr('href', gameData.game_url || '#');
       $('#game-meta-lichess-link').attr('href', gameData.lichess_url || 'https://lichess.org/');
